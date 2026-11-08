@@ -58,7 +58,8 @@ namespace Catpo.Core
         public const double NeedsPerInfectionPoint = 0.01;      // [제안] 배율 = 1 + 감염도/100
 
         // ── 소지품 (docs/10-controls-and-items.md) ─────────────────────
-        public const double BaseCarryLimitKg = 12;           // [제안] 맨몸 기준
+        public const double BaseCarryLimitKg = 8;            // [제안] 무게 한도는 높은 편이 아님 [확정]
+        public const double OverloadFactor = 1.5;            // [제안] 사람은 과적해서 더 들 수 있음 [확정]. AI는 과적하지 않음 [확정]
 
         // ── 배고픔·목마름 (0 = 괜찮음, 100 = 한계) ──────────────────────
         public const double NeedMax = 100;
@@ -67,46 +68,54 @@ namespace Catpo.Core
         public const double NeedStressThreshold = 80;        // [제안] 이 이상이면 스트레스가 쌓임
         public const double NeedStressPerHour = 1;           // [제안]
 
-        // ── 숙련도 ─────────────────────────────────────────────────────
+        // ── 숙련도와 제작 ──────────────────────────────────────────────
         public const int MaxSkillLevel = 10;                 // [제안]
         public const double XpPerLevelStep = 100;            // [제안] 다음 레벨까지 100 × 다음 레벨
         public const int PurifierMedicalLevel = 3;           // [제안] 의료 레벨이 높으면 정화제 제작 [확정]
-        public const double MedicalEffectPerLevel = 0.1;     // [제안] 정화 효과 = 1 + (의료 레벨-1) × 0.1
+        // 만드는 사람의 특성과 기술 레벨은 제작 속도와 재료 절감에 영향을 준다 [확정]. 쓰는 사람에 따른 보너스는 없다 [확정].
+        public const double CraftSpeedPerLevel = 0.1;        // [제안] 제작 속도 = 1 + (레벨-1) × 0.1
+        public const double MaterialSavingPerLevel = 0.05;   // [제안] 재료 절감 = (레벨-1) × 0.05, 쌓여서 1이 되면 재료 1개를 아낌
 
         // ── 불과 요리 (docs/09-home-life.md) ───────────────────────────
-        public const double FuelUnitsPerPaper = 1;           // [제안] 모닥불 연료
-        public const double FuelUnitsPerWood = 3;            // [제안]
+        // 불은 플레이어가 고른다 [확정].
+        public const double FuelUnitsPerPaper = 1;           // [제안] 모닥불 연료. 요리 1번 = 1
+        public const double FuelUnitsPerWoodStick = 1;       // [제안]
+        public const double FuelUnitsPerWoodBoard = 2;       // [제안]
         public const double CampfireCookHours = 1.0;         // [제안]
         public const double GasBurnerCookHours = 0.5;        // [제안] 가스버너는 효율이 좋음 [확정]
         public const int ButaneChargesPerCan = 6;            // [제안] 부탄가스 1통으로 요리 6번
-        public const int GasBurnerDurability = 30;           // [제안] 가스버너도 고장 남 [확정]
+        public const int GasBurnerCanLife = 100;             // [확정] 부탄가스 100통 정도 쓰면 고장
 
         // ── 빗물 ───────────────────────────────────────────────────────
         public static readonly double[] RainChanceBySeason = { 0.30, 0.45, 0.25, 0.10 }; // [제안] 봄, 여름, 가을, 겨울
-        public const int RainWaterPerCollector = 4;          // [제안] 비 오는 날 빗물받이 하나당
+        public const int RainWaterPerFunnelCollector = 4;    // [제안] 비닐봉투 + 나무 막대 + 용기
+        public const int RainWaterPerPot = 2;                // [제안] 냄비째로 비 오는 곳에 두기
         public const double BuildRainCollectorHours = 1;     // [제안]
 
         // ── 현관 ───────────────────────────────────────────────────────
         public const double FrontDoorMax = 100;
         public const double FrontDoorDailyDamage = 4;        // [제안] 바깥에서 계속 충격이 옴 [확정]
-        public const double DoorRepairPerMaterial = 15;      // [제안]
+        public const double DoorRepairPerBoard = 15;         // [제안] 나무 판
+        public const double DoorRepairPerStick = 5;          // [제안] 나무 막대
         public const double DoorRepairPerTape = 5;           // [제안]
         public const double DoorRepairHours = 1;             // [제안]
-        public const int HomeFurnitureMaterials = 10;        // [제안] 집 안 가구를 부숴 얻는 자재 총량
+        public const int HomeFurniturePieces = 24;           // [제안] 침대, 매트리스, 테이블 등은 집집마다 많음 [확정]
+        public const int BoardsPerFurniture = 1;             // [제안] 가구 1개를 분해하면 나무 판 1개
+        public const int SticksPerFurniture = 2;             // [제안] 나무 막대 2개
         public const double BreakFurnitureHours = 1;         // [제안]
 
         // ── 집 정화 ────────────────────────────────────────────────────
-        public const double HousePurityMax = 100;
-        public const double HousePurityDailyLoss = 10;       // [제안]
-        public const double HousePurityPerPurifier = 40;     // [제안]
-        public const double UnpurifiedHomeContaminationPerHour = 0.5; // [제안] 정화가 끊긴 집
+        public const int HouseProtectionHours = 24;          // 매일 써야 함 [확정]. 한 번에 24시간 [제안]
         public const double BodyPurifyHours = 0.5;           // [제안]
+        // 정화가 끊긴 집은 바깥에 있는 것처럼 오염도가 오른다 [확정] → ContaminationPerOutsideHour 사용
 
         // ── AI 파견 (docs/02-day-expedition.md) ────────────────────────
-        public const double DispatchLootShare = 0.4;         // [제안] 오브젝트 물자 중 가져오는 비율 (30~50%)
-        public const double DispatchHoursPerSpot = 3;        // [제안] 바깥 3시간마다 오브젝트 1곳
-        public const int DispatchReturnHoursBeforeEnd = 1;   // [제안] 해 지기 1시간 전에 돌아옴
-        public const int FastDispatchHoursEarlier = 1;       // [제안] 이동이 빠른 캐릭터는 1시간 일찍
+        // 물자가 많은 곳은 가방이 빨리 차서 빨리 오고, 적은 곳은 찾는 데 오래 걸려 늦게 온다 [확정].
+        public const double DispatchTravelMinutesPerStep = 20; // [제안] 오브젝트 사이 이동 시간
+        public const double DispatchSearchMinutesPerItem = 6;  // [제안] 물건 1개를 찾는 시간
+        public const double DispatchFullMarginKg = 0.3;      // [제안] 남은 여유가 이보다 적으면 가득 찬 것으로 봄
+        public const int DispatchReturnHoursBeforeEnd = 1;   // [제안] 늦어도 해 지기 1시간 전에 돌아옴
         public const int MinDispatchHours = 1;
+        public const double AutoDispatchContaminationLimit = 30; // [제안] 자동 파견은 오염도가 이 이상이면 쉬게 함
     }
 }

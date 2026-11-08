@@ -40,6 +40,11 @@ namespace Catpo.Core
 
         // 숙련도
         public SkillSet Skills { get; } = new SkillSet();
+        /// <summary>제작 재료 절감이 쌓인 값. 1이 넘으면 재료 1개를 아낀다.</summary>
+        internal double MaterialSavingCredit { get; set; }
+
+        /// <summary>사람이 직접 맡은 캐릭터. AI 파견은 사람이 맡지 않은 캐릭터만 할 수 있다 [확정].</summary>
+        public bool ControlledByPlayer { get; set; }
 
         public bool IsDead { get; private set; }
         public string DeathCause { get; private set; }
@@ -57,6 +62,9 @@ namespace Catpo.Core
         public bool IsDispatched { get; internal set; }
         internal long DispatchStartMinute { get; set; }
         public long DispatchReturnAtMinute { get; internal set; }
+        internal List<DispatchPick> DispatchPlan { get; set; } = new List<DispatchPick>();
+        /// <summary>자동 파견 방향. 정해 두면 외출 가능 시간에 알아서 나갔다 온다 [확정]. null이면 자동 파견 안 함.</summary>
+        public Direction? AutoDispatchDirection { get; set; }
 
         // 소지품
         public Inventory Inventory { get; } = new Inventory();
@@ -79,11 +87,20 @@ namespace Catpo.Core
             return Skills.AddXp(skill, amount * multiplier);
         }
 
-        /// <summary>무게 한도 안에서만 줍는다. 성공하면 true.</summary>
-        public bool TryPickUp(string itemId, int amount = 1)
+        /// <summary>과적했을 때 들 수 있는 최대 무게. 사람만 과적할 수 있다 [확정].</summary>
+        public double OverloadLimitKg => CarryLimitKg * Balance.OverloadFactor;
+
+        public bool IsOverloaded => Inventory.TotalWeightKg > CarryLimitKg + 1e-9;
+
+        /// <summary>
+        /// 무게 한도 안에서 줍는다. allowOverload면 과적 한도까지 줍는다 (사람이 직접 수색할 때).
+        /// AI는 과적하지 않는다 [확정].
+        /// </summary>
+        public bool TryPickUp(string itemId, int amount = 1, bool allowOverload = false)
         {
             double added = ItemCatalog.Get(itemId).WeightKg * amount;
-            if (Inventory.TotalWeightKg + added > CarryLimitKg + 1e-9) return false;
+            double limit = allowOverload ? OverloadLimitKg : CarryLimitKg;
+            if (Inventory.TotalWeightKg + added > limit + 1e-9) return false;
             Inventory.Add(itemId, amount);
             return true;
         }

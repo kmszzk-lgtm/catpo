@@ -10,6 +10,9 @@ namespace Catpo.Core
         NotAtHome,
         MissingSkill,
         MissingInputs,
+        /// <summary>불이 필요한 제작인데 불을 고르지 않았다.</summary>
+        HeatNotChosen,
+        /// <summary>고른 불을 쓸 수 없다 (연료, 부탄가스가 없거나 버너가 고장).</summary>
         NoHeat,
         TooStressed,
         NothingLeft,
@@ -23,15 +26,19 @@ namespace Catpo.Core
         /// <summary>게임 시간으로 걸리는 시간. 집냥이(생활력)는 짧고, 스트레스가 높으면 길다.</summary>
         public double Hours { get; }
         public HeatSource Heat { get; }
-        /// <summary>집 안 가구로 만들 자재가 바닥나서, 밖에서도 가져와야 한다는 메시지를 띄울 때 [확정].</summary>
+        /// <summary>집 안 가구가 바닥나서, 밖에서도 가져와야 한다는 메시지를 띄울 때 [확정].</summary>
         public bool NeedMaterialsFromOutside { get; }
+        /// <summary>재료 절감으로 아낀 재료 (아이템 id). 없으면 null.</summary>
+        public string SavedInput { get; }
 
-        public ActionResult(ActionFailure failure, double hours = 0, HeatSource heat = HeatSource.None, bool needMaterialsFromOutside = false)
+        public ActionResult(ActionFailure failure, double hours = 0, HeatSource heat = HeatSource.None,
+            bool needMaterialsFromOutside = false, string savedInput = null)
         {
             Failure = failure;
             Hours = hours;
             Heat = heat;
             NeedMaterialsFromOutside = needMaterialsFromOutside;
+            SavedInput = savedInput;
         }
 
         public static ActionResult Fail(ActionFailure failure, bool needMaterialsFromOutside = false) =>
@@ -118,6 +125,25 @@ namespace Catpo.Core
             return baseHours / speed;
         }
 
+        /// <summary>
+        /// 만드는 사람의 숙련도와 특성이 주는 제작 배율 [확정: 제작 속도와 재료 절감에 영향].
+        /// 의료 제작에는 의료 행위 특성(전문의)이 붙는다. 수치는 [제안].
+        /// </summary>
+        public static double CraftSkillMultiplier(Survivor s, Recipe r)
+        {
+            double level = 1 + (s.Skills.Level(r.XpSkill) - 1) * Balance.CraftSpeedPerLevel;
+            double trait = r.Kind == CraftKind.Medicine ? s.Effects.MedicalAction : 1;
+            return level * trait;
+        }
+
+        /// <summary>제작 1번마다 쌓이는 재료 절감 [제안].</summary>
+        public static double MaterialSavingRate(Survivor s, Recipe r)
+        {
+            double rate = (s.Skills.Level(r.XpSkill) - 1) * Balance.MaterialSavingPerLevel;
+            if (r.Kind == CraftKind.Medicine) rate *= s.Effects.MedicalAction;
+            return rate;
+        }
+
         public static bool MeetsRequirement(Survivor s, Recipe r)
         {
             if (!r.RequiredSkill.HasValue) return true;
@@ -134,28 +160,49 @@ namespace Catpo.Core
             return ActionFailure.None;
         }
 
-        /// <summary>공용 창고의 재료로 만든다. 결과물은 공용 창고로 들어간다.</summary>
-        public static ActionResult TryCraft(GameState state, Survivor s, Recipe r)
+        /// <summary>
+        /// 공용 창고의 재료로 만든다. 결과물은 공용 창고로 들어간다.
+        /// 불이 필요한 제작은 플레이어가 고른 불(heat)을 쓴다 [확정].
+        /// </summary>
+        public static ActionResult TryCraft(GameState state, Survivor s, Recipe r, HeatSource heat = HeatSource.None)
         {
             var failure = CheckCanActAtHome(s);
             if (failure != ActionFailure.None) return ActionResult.Fail(failure);
             if (!MeetsRequirement(s, r)) return ActionResult.Fail(ActionFailure.MissingSkill);
             if (r.Inputs.Any(kv => state.Storage.Count(kv.Key) < kv.Value)) return ActionResult.Fail(ActionFailure.MissingInputs);
 
-            var heat = HeatSource.None;
             double baseHours = r.Hours;
             if (r.NeedsHeat)
             {
-                heat = state.Home.TryUseHeat(state.Storage);
-                if (heat == HeatSource.None) return ActionResult.Fail(ActionFailure.NoHeat);
+                if (heat == HeatSource.None) return ActionResult.Fail(ActionFailure.HeatNotChosen);
+                if (!state.Home.UseHeat(state.Storage, heat)) return ActionResult.Fail(ActionFailure.NoHeat);
                 baseHours = Household.CookHours(heat);
             }
+            else
+            {
+                heat = HeatSource.None;
+            }
 
-            foreach (var kv in r.Inputs) state.Storage.Remove(kv.Key, kv.Value);
+            // 재료 절감: 쌓인 값이 1이 되면 첫 번째 재료 1개를 아낀다
+            string saved = null;
+            s.MaterialSavingCredit += MaterialSavingRate(s, r);
+            if (s.MaterialSavingCredit >= 1 - 1e-9)
+            {
+                s.MaterialSavingCredit -= 1;
+                saved = r.Inputs.Keys.First();
+            }
+
+            foreach (var kv in r.Inputs)
+            {
+                int amount = kv.Key == saved ? kv.Value - 1 : kv.Value;
+                if (amount > 0) state.Storage.Remove(kv.Key, amount);
+            }
             foreach (var kv in r.Outputs) state.Storage.Add(kv.Key, kv.Value);
             s.GainXp(r.XpSkill, r.Xp, atHome: true);
             StressRules.OnCraft(s, s.Definition.TasteFor(r.Kind));
-            return new ActionResult(ActionFailure.None, HomeActionHours(s, baseHours), heat);
+
+            double hours = HomeActionHours(s, baseHours) / CraftSkillMultiplier(s, r);
+            return new ActionResult(ActionFailure.None, hours, heat, savedInput: saved);
         }
     }
 }

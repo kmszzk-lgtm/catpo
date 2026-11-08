@@ -76,20 +76,26 @@ namespace Catpo.Core.Tests
         }
 
         [Test]
-        public void 무게_한도를_넘게_들_수는_없다()
+        public void 무게_한도를_넘게_들려면_과적해야_한다()
         {
-            for (int i = 0; i < 6; i++) Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id), Is.True);
-            Assert.That(gun.Inventory.TotalWeightKg, Is.EqualTo(12).Within(1e-9));
+            for (int i = 0; i < 4; i++) Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id), Is.True);
+            Assert.That(gun.Inventory.TotalWeightKg, Is.EqualTo(Balance.BaseCarryLimitKg).Within(1e-9));
             Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id), Is.False);
+
+            // 사람은 과적해서 더 들 수 있다 (한도의 1.5배까지)
+            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.True);
+            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.True);
+            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.False);
+            Assert.That(gun.IsOverloaded, Is.True);
         }
 
         [Test]
         public void 나갈_때는_창고에서_무게_한도_안에서_꺼내_간다()
         {
             state.Storage.Add(ItemCatalog.Stone.Id, 30);
-            Assert.That(state.TakeFromStorage(gun, ItemCatalog.Stone.Id, 24), Is.True);
+            Assert.That(state.TakeFromStorage(gun, ItemCatalog.Stone.Id, 16), Is.True);
             Assert.That(state.TakeFromStorage(gun, ItemCatalog.Stone.Id, 1), Is.False);
-            Assert.That(state.Storage.Count(ItemCatalog.Stone.Id), Is.EqualTo(6));
+            Assert.That(state.Storage.Count(ItemCatalog.Stone.Id), Is.EqualTo(14));
         }
 
         [Test]

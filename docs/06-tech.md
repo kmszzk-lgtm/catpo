@@ -22,6 +22,8 @@
 catpo/
 ├─ docs/                              기획 문서
 ├─ unity/                             Unity 프로젝트 폴더 (지금은 Assets만 있음)
+│  ├─ ProjectSettings/ProjectVersion.txt   Unity 6.6 (6000.6.8f1). 나머지는 Unity가 만든다
+│  ├─ Assets/Scripts/Editor/          Unity 메뉴 "좀비냥 > 규칙 코드 확인" (Catpo.EditorTools.asmdef, 에디터 전용)
 │  └─ Assets/Scripts/Core/            규칙 코드. Catpo.Core.asmdef (엔진 참조 없음)
 │     ├─ Balance.cs                   밸런스 수치. [확정]/[제안] 표시
 │     ├─ GameState.cs                 월드 전체 상태: 시간, 캐릭터, 공용 창고, 외출, AI 파견, 잠자기, 하루 처리
@@ -50,14 +52,19 @@ dotnet test tests/Catpo.Core.Tests
 ```
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
-- 2026-11-08 기준 테스트 93개 통과
+- 2026-11-08 기준 테스트 98개 통과
 
 ## Unity에서 여는 방법 (기획자 PC)
 
-1. Unity Hub에서 **Add → Add project from disk**를 누르고 레포의 `unity` 폴더를 고른다.
-2. 에디터 버전을 고르라고 하면 **Unity 6.6 (6000.6.8f1)**을 고른다.
-3. Unity가 `ProjectSettings`, `Packages` 같은 나머지 파일과 `.meta` 파일을 만든다. 이 파일들은 레포에 커밋한다.
-4. 콘솔 창에 오류가 뜨면 오류 메시지를 그대로 알려준다.
+1. 웹 브라우저로 GitHub의 레포 `kmszzk-lgtm/catpo`를 연다.
+2. 왼쪽 위의 브랜치 버튼을 눌러 작업 브랜치(`claude/survival-game-project-gl8rt2`)를 고른다.
+3. 초록색 **Code** 버튼 → **Download ZIP**으로 받아 압축을 푼다.
+4. Unity Hub에서 **Add**(추가) 옆 화살표 → **Add project from disk**(디스크에서 프로젝트 추가)를 누르고, 압축을 푼 폴더 안의 `unity` 폴더를 고른다.
+5. 목록에 생긴 프로젝트를 눌러 연다. 처음 열 때는 몇 분 걸린다.
+6. 위쪽 메뉴에 생긴 **좀비냥 > 규칙 코드 확인**을 누른다.
+7. **Console** 창(없으면 메뉴 **Window > General > Console**)에 결과가 나온다. 빨간 오류가 있으면 그대로 알려준다.
+
+나중에 Unity에서 만든 파일(`.meta`, `ProjectSettings`, `Packages`)을 레포에 올리려면 GitHub Desktop 같은 도구가 필요하다. 그때 따로 안내한다.
 
 ## 데이터 (제안)
 

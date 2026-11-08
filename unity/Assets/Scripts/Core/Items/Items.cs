@@ -12,6 +12,7 @@ namespace Catpo.Core
         Material,
         Medical,
         Tool,
+        Seasoning,
     }
 
     public sealed class ItemDefinition
@@ -46,18 +47,36 @@ namespace Catpo.Core
     {
         private static readonly Dictionary<string, ItemDefinition> items = new Dictionary<string, ItemDefinition>();
 
+        // 물과 음식
         public static readonly ItemDefinition BottledWater = Add("bottled_water", "생수", ItemCategory.Water, 2.0, thirstRelief: 50);
         /// <summary>빗물은 끓여야 마실 수 있다 [제안].</summary>
         public static readonly ItemDefinition RainWater = Add("rain_water", "빗물", ItemCategory.Water, 1.0);
         public static readonly ItemDefinition BoiledWater = Add("boiled_water", "끓인 물", ItemCategory.Water, 1.0, thirstRelief: 30);
         public static readonly ItemDefinition CannedFood = Add("canned_food", "통조림", ItemCategory.Food, 0.4, hungerRelief: 35);
         public static readonly ItemDefinition InstantNoodle = Add("instant_noodle", "라면", ItemCategory.Food, 0.12, hungerRelief: 30);
-        public static readonly ItemDefinition Wood = Add("wood", "나무", ItemCategory.Fuel, 2.0);
+        public static readonly ItemDefinition Chocolate = Add("chocolate", "초콜릿", ItemCategory.Food, 0.1, hungerRelief: 20);
+
+        // 조미료: 한 번 쓰는 양이 적고 집집마다 한 통씩 있다 [확정]
+        public static readonly ItemDefinition Salt = Add("salt", "소금", ItemCategory.Seasoning, 0.5);
+        public static readonly ItemDefinition SoySauce = Add("soy_sauce", "간장", ItemCategory.Seasoning, 0.5);
+        public static readonly ItemDefinition SesameOil = Add("sesame_oil", "참기름", ItemCategory.Seasoning, 0.3);
+        public static readonly ItemDefinition CookingOil = Add("cooking_oil", "식용유", ItemCategory.Seasoning, 0.9);
+        public static readonly ItemDefinition CanolaOil = Add("canola_oil", "카놀라유", ItemCategory.Seasoning, 0.9);
+
+        // 나무: 나무 막대와 나무 판 두 가지 [확정]. 가구를 분해해서 얻는다
+        public static readonly ItemDefinition WoodStick = Add("wood_stick", "나무 막대", ItemCategory.Material, 0.5);
+        public static readonly ItemDefinition WoodBoard = Add("wood_board", "나무 판", ItemCategory.Material, 1.5);
+
+        // 연료와 불
         public static readonly ItemDefinition Paper = Add("paper", "종이", ItemCategory.Fuel, 0.3);
         public static readonly ItemDefinition Butane = Add("butane", "부탄가스", ItemCategory.Fuel, 0.3);
         public static readonly ItemDefinition GasBurner = Add("gas_burner", "가스버너", ItemCategory.Tool, 1.5);
+
+        // 유인용으로 던질 수 있는 것: 소음이 큰 것 [확정]
         public static readonly ItemDefinition Stone = Add("stone", "돌", ItemCategory.Material, 0.5, isLure: true);
         public static readonly ItemDefinition LiquorBottle = Add("liquor_bottle", "술병", ItemCategory.Material, 0.8, isLure: true);
+
+        // 의료와 정화
         public static readonly ItemDefinition Disinfectant = Add("disinfectant", "소독약", ItemCategory.Medical, 0.3);
         public static readonly ItemDefinition Bleach = Add("bleach", "락스", ItemCategory.Material, 1.0);
         public static readonly ItemDefinition Purifier = Add("purifier", "정화제", ItemCategory.Medical, 0.3);
@@ -66,11 +85,15 @@ namespace Catpo.Core
         public static readonly ItemDefinition FirstAidKit = Add("first_aid_kit", "응급처치 도구", ItemCategory.Medical, 0.5);
         public static readonly ItemDefinition Painkiller = Add("painkiller", "진통제", ItemCategory.Medical, 0.05);
         public static readonly ItemDefinition HouseholdMedicine = Add("household_medicine", "상비약", ItemCategory.Medical, 0.1);
+
+        // 생활용품과 재료
         public static readonly ItemDefinition Tarp = Add("tarp", "방수포", ItemCategory.Material, 1.5);
         public static readonly ItemDefinition Tape = Add("tape", "테이프", ItemCategory.Material, 0.2);
-        public static readonly ItemDefinition Vinyl = Add("vinyl", "비닐", ItemCategory.Material, 0.2);
-        public static readonly ItemDefinition PlasticContainer = Add("plastic_container", "플라스틱 용기", ItemCategory.Material, 0.5);
-        public static readonly ItemDefinition BuildingMaterial = Add("building_material", "자재", ItemCategory.Material, 3.0);
+        /// <summary>어지간한 집에는 다 있다 [확정].</summary>
+        public static readonly ItemDefinition VinylBag = Add("vinyl_bag", "비닐봉투", ItemCategory.Material, 0.02);
+        /// <summary>빗물을 담을 수 있는 용기 [확정]: 1.5L 페트병, 냄비.</summary>
+        public static readonly ItemDefinition PetBottle = Add("pet_bottle", "페트병(1.5L)", ItemCategory.Material, 0.05);
+        public static readonly ItemDefinition Pot = Add("pot", "냄비", ItemCategory.Tool, 1.0);
 
         private static ItemDefinition Add(string id, string name, ItemCategory category, double weightKg, bool isLure = false,
             double hungerRelief = 0, double thirstRelief = 0)

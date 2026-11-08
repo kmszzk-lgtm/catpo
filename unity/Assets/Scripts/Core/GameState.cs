@@ -41,24 +41,35 @@ namespace Catpo.Core
         {
             var state = new GameState(new GameTime(1, 7), CharacterCatalog.Starting.Select(d => new Survivor(d)),
                 FieldMap.CreateTutorial(), seed);
+            var st = state.Storage;
 
+            // 1층 현관 앞 경비실의 도어락 마스터 키로 지하부터 옥상까지 다 열어서 모은 살림 [확정].
+            st.Add(ItemCatalog.BottledWater.Id, 6);      // 생수는 집에 많이 두지 않음 [확정]
+            st.Add(ItemCatalog.CannedFood.Id, 10);       // 보존식은 1인 기준 30일치 [확정] (개수 배분은 [제안])
+            st.Add(ItemCatalog.InstantNoodle.Id, 12);
+            st.Add(ItemCatalog.Chocolate.Id, 8);
+            foreach (var seasoning in new[] { ItemCatalog.Salt, ItemCatalog.SoySauce, ItemCatalog.SesameOil, ItemCatalog.CookingOil, ItemCatalog.CanolaOil })
+                st.Add(seasoning.Id, 4);                 // 조미료는 집집마다 한 통씩 [확정]
+            st.Add(ItemCatalog.Butane.Id, 5);            // [확정]
+            st.Add(ItemCatalog.VinylBag.Id, 20);         // 어지간한 집에 다 있음 [확정], 개수 [제안]
+            st.Add(ItemCatalog.PetBottle.Id, 4);         // [제안]
+            st.Add(ItemCatalog.Pot.Id, 3);               // [제안]
+            st.Add(ItemCatalog.Paper.Id, 20);            // [제안]
+            st.Add(ItemCatalog.WoodStick.Id, 4);         // [제안]
+            st.Add(ItemCatalog.WoodBoard.Id, 2);         // [제안]
+            st.Add(ItemCatalog.Tape.Id, 3);              // [제안]
+            st.Add(ItemCatalog.Bleach.Id, 4);            // [제안] 집집마다 락스
+            st.Add(ItemCatalog.LiquorBottle.Id, 3);      // [제안]
+            st.Add(ItemCatalog.Disinfectant.Id, 2);      // [제안]
             // 의냥이 시작 아이템 [확정]: 응급처치 도구 여러 개, 상비약, 진통제. 개수는 [제안].
-            state.Storage.Add(ItemCatalog.FirstAidKit.Id, 3);
-            state.Storage.Add(ItemCatalog.HouseholdMedicine.Id, 5);
-            state.Storage.Add(ItemCatalog.Painkiller.Id, 5);
-
-            // 그동안 버텨 온 집의 살림 [제안]. 가스버너는 집에 있다 [확정], 부탄가스는 많지 않다 [확정].
-            state.Storage.Add(ItemCatalog.BottledWater.Id, 2);
-            state.Storage.Add(ItemCatalog.CannedFood.Id, 2);
-            state.Storage.Add(ItemCatalog.Paper.Id, 4);
-            state.Storage.Add(ItemCatalog.Wood.Id, 1);
-            state.Storage.Add(ItemCatalog.Butane.Id, 1);
-            state.Storage.Add(ItemCatalog.Tape.Id, 2);
-            // 튜토리얼에서 빗물받이 하나를 만들 재료
-            state.Storage.Add(ItemCatalog.PlasticContainer.Id, 1);
-            state.Storage.Add(ItemCatalog.Vinyl.Id, 1);
-            state.Storage.Add(ItemCatalog.GasBurner.Id, 1);
-            state.Home.InstallGasBurner(state.Storage);
+            st.Add(ItemCatalog.FirstAidKit.Id, 3);
+            st.Add(ItemCatalog.HouseholdMedicine.Id, 5);
+            st.Add(ItemCatalog.Painkiller.Id, 5);
+            // 가스버너는 집에 있다 [확정]
+            st.Add(ItemCatalog.GasBurner.Id, 1);
+            state.Home.InstallGasBurner(st);
+            // 튜토리얼에서 의냥이가 시설 전체를 소독했다 [확정]
+            state.Home.HouseProtectedUntilMinute = state.Time.TotalMinutes + Balance.HouseProtectionHours * 60;
             return state;
         }
 
@@ -94,14 +105,14 @@ namespace Catpo.Core
 
         /// <summary>
         /// 집으로 돌아온다. 언제든 자유 [확정]. 방향이 풀리고, 소지품은 공용 창고로 들어간다 [확정].
-        /// 오염도가 기준을 넘었으면 다음 날 외출 불가. AI 파견 중이면 그때까지의 결과를 가지고 돌아온다.
+        /// 오염도가 기준을 넘었으면 다음 날 외출 불가. AI 파견 중이면 그때까지 주운 것만 가지고 돌아온다.
         /// </summary>
         public void Return(Survivor s)
         {
             if (s.Location != SurvivorLocation.Outside) return;
             if (s.IsDispatched)
             {
-                CompleteDispatch(s);
+                CompleteDispatch(s, autoRepeat: false);
                 return;
             }
             ArriveHome(s);
@@ -126,49 +137,105 @@ namespace Catpo.Core
         // ── AI 파견 ────────────────────────────────────────────────────
 
         /// <summary>
-        /// AI가 맡은 캐릭터를 한 방향으로 보낸다 [확정]. 직접 수색하지 않고, 저녁 전에 물자를 조금 가지고 돌아온다 [확정].
-        /// 이동이 빠른 캐릭터(길냥이)는 더 일찍 돌아온다 [확정: 특성에 따라 귀환 시각이 다름].
+        /// AI가 맡은 캐릭터를 한 방향으로 보낸다 [확정]. 직접 수색하지 않고 결과만 가지고 돌아온다 [확정].
+        /// 가까운 곳부터 흔한 물건 순으로 줍고, 가방이 차거나 시간이 다 되면 돌아온다.
+        /// 물자가 많은 곳은 빨리 차서 빨리 오고, 적은 곳은 늦게 온다 [확정]. AI는 과적하지 않는다 [확정].
         /// </summary>
         public DepartResult Dispatch(Survivor s, Direction direction)
         {
+            if (s.ControlledByPlayer) return DepartResult.PlayerControlled;
             var result = TryDepart(s, direction);
             if (result != DepartResult.Ok) return result;
 
-            var (_, endHour) = GameTime.OutingWindow(Time.Season);
-            int returnHour = endHour - Balance.DispatchReturnHoursBeforeEnd
-                - (s.Effects.MoveSpeed > 1 ? Balance.FastDispatchHoursEarlier : 0);
-            long dayStart = Time.TotalMinutes - Time.MinuteOfDay;
-            long earliest = Time.TotalMinutes + Balance.MinDispatchHours * 60;
-
+            var plan = PlanDispatch(s, direction, out double returnAfterMinutes);
             s.IsDispatched = true;
             s.DispatchStartMinute = Time.TotalMinutes;
-            s.DispatchReturnAtMinute = Math.Max(dayStart + returnHour * 60, earliest);
+            s.DispatchPlan = plan;
+            s.DispatchReturnAtMinute = Time.TotalMinutes + (long)Math.Ceiling(returnAfterMinutes - 1e-9);
             return DepartResult.Ok;
         }
 
-        /// <summary>
-        /// AI가 상호작용한 오브젝트는 필드에서 제거되고, AI는 그때 나온 잔해물을 가져온다 [확정].
-        /// 바깥 3시간마다 가까운 오브젝트 1곳, 각 물자의 40% 정도를 무게 한도 안에서 가져온다 [제안].
-        /// </summary>
-        private void CompleteDispatch(Survivor s)
+        /// <summary>오늘 AI가 돌아와야 하는 마지막 시각까지 남은 분. 늦어도 해 지기 1시간 전 [제안].</summary>
+        private double DispatchBudgetMinutes()
         {
-            double hoursOut = (Time.TotalMinutes - s.DispatchStartMinute) / 60.0;
-            int spotCount = Math.Max(1, (int)Math.Floor(hoursOut / Balance.DispatchHoursPerSpot));
-            if (s.OutingDirection.HasValue)
+            var (_, endHour) = GameTime.OutingWindow(Time.Season);
+            long dayStart = Time.TotalMinutes - Time.MinuteOfDay;
+            long deadline = dayStart + (endHour - Balance.DispatchReturnHoursBeforeEnd) * 60;
+            return deadline - Time.TotalMinutes;
+        }
+
+        private List<DispatchPick> PlanDispatch(Survivor s, Direction d, out double returnAfterMinutes)
+        {
+            double budget = Math.Max(Balance.MinDispatchHours * 60, DispatchBudgetMinutes());
+            var e = s.Effects;
+            double searchSpeed = e.ActionSpeed * (1 + (s.Skills.Level(Skill.Search) - 1) * Balance.CraftSpeedPerLevel)
+                * StressRules.ActionSpeedMultiplier(s.Stress);
+            double step = Balance.DispatchTravelMinutesPerStep / e.MoveSpeed;
+            double perItem = Balance.DispatchSearchMinutesPerItem / Math.Max(0.01, searchSpeed);
+
+            var picks = new List<DispatchPick>();
+            double weight = s.Inventory.TotalWeightKg;
+            double t = 0;
+            int position = -1; // -1 = 집
+            bool stop = false;
+            foreach (var spot in Field.Remaining(d).ToList())
             {
-                foreach (var spot in Field.Remaining(s.OutingDirection.Value).Take(spotCount).ToList())
+                double travel = step * (spot.Order - position);
+                double back = step * (spot.Order + 1);
+                if (t + travel + back > budget) break;
+                t += travel;
+                position = spot.Order;
+
+                // 그 오브젝트에서 흔한 물건부터
+                foreach (var kv in spot.Contents.Items.OrderByDescending(x => x.Value).ThenBy(x => x.Key).ToList())
                 {
-                    foreach (var kv in spot.Contents.Items.ToList())
+                    double w = ItemCatalog.Get(kv.Key).WeightKg;
+                    for (int i = 0; i < kv.Value; i++)
                     {
-                        int share = (int)Math.Round(kv.Value * Balance.DispatchLootShare, MidpointRounding.AwayFromZero);
-                        for (int i = 0; i < share; i++)
-                            if (!s.TryPickUp(kv.Key)) break;
+                        if (weight + w > s.CarryLimitKg + 1e-9) break; // 이 물건은 더 못 듦
+                        if (t + perItem + back > budget) { stop = true; break; }
+                        t += perItem;
+                        weight += w;
+                        picks.Add(new DispatchPick { Spot = spot, ItemId = kv.Key, AtMinute = t });
                     }
-                    spot.IsRemoved = true;
+                    if (stop || s.CarryLimitKg - weight < Balance.DispatchFullMarginKg) { stop = true; break; }
                 }
+                if (stop) break;
             }
+
+            // 아무것도 못 찾으면 하루 종일 찾다가 마감 때 돌아온다
+            returnAfterMinutes = picks.Count == 0 ? budget : t + step * (position + 1);
+            return picks;
+        }
+
+        private void CompleteDispatch(Survivor s, bool autoRepeat)
+        {
+            double elapsed = Time.TotalMinutes - s.DispatchStartMinute;
+            foreach (var pick in s.DispatchPlan)
+            {
+                if (pick.AtMinute > elapsed + 1e-9) break;
+                if (pick.Spot.Contents.Count(pick.ItemId) == 0) continue;
+                if (!s.TryPickUp(pick.ItemId)) continue;
+                pick.Spot.Contents.Remove(pick.ItemId);
+            }
+            s.DispatchPlan = new List<DispatchPick>();
             s.IsDispatched = false;
             ArriveHome(s);
+            if (autoRepeat) TryAutoDispatch(s);
+        }
+
+        /// <summary>
+        /// 자동 파견 [확정: 수동으로 자주 보내는 건 귀찮으니 자동으로]. 정해 둔 방향으로, 외출 가능 시간 안이면 알아서 나간다.
+        /// 오염도가 높으면 쉬게 하고, 남은 물자가 없거나 시간이 1시간도 안 남았으면 나가지 않는다 [제안].
+        /// </summary>
+        private bool TryAutoDispatch(Survivor s)
+        {
+            if (!s.AutoDispatchDirection.HasValue || s.ControlledByPlayer || s.IsDead) return false;
+            if (s.Location != SurvivorLocation.Home) return false;
+            if (s.Contamination >= Balance.AutoDispatchContaminationLimit) return false;
+            if (!Field.Remaining(s.AutoDispatchDirection.Value).Any()) return false;
+            if (DispatchBudgetMinutes() < Balance.MinDispatchHours * 60) return false;
+            return Dispatch(s, s.AutoDispatchDirection.Value) == DepartResult.Ok;
         }
 
         private void ArriveHome(Survivor s)
@@ -182,32 +249,46 @@ namespace Catpo.Core
 
         // ── 시간 ───────────────────────────────────────────────────────
 
-        /// <summary>시간을 흘린다. 자정마다 하루치 일을 처리하고, AI 파견은 정해진 시각에 돌아온다.</summary>
+        /// <summary>
+        /// 시간을 흘린다. 자정마다 하루치 일을 처리하고, AI 파견은 정해진 시각에 돌아오며,
+        /// 자동 파견은 외출 가능 시간이 되면 나간다.
+        /// </summary>
         public void Advance(int minutes)
         {
             if (minutes < 0) throw new ArgumentOutOfRangeException(nameof(minutes));
-            while (minutes > 0 && !IsWorldOver)
+            while (true)
             {
-                int chunk = Math.Min(minutes, Balance.MinutesPerDay - Time.MinuteOfDay);
-                long? nextReturn = Alive.Where(s => s.IsDispatched).Select(s => (long?)s.DispatchReturnAtMinute).Min();
-                if (nextReturn.HasValue)
-                {
-                    long until = nextReturn.Value - Time.TotalMinutes;
-                    if (until >= 0 && until < chunk) chunk = (int)until;
-                }
+                ProcessDueEvents();
+                if (minutes <= 0 || IsWorldOver) break;
 
-                if (chunk > 0)
+                long now = Time.TotalMinutes;
+                long limit = now + Math.Min(minutes, Balance.MinutesPerDay - Time.MinuteOfDay);
+                void Consider(long at)
                 {
-                    ApplyElapsed(chunk / 60.0);
-                    int midnights = Time.Advance(chunk);
-                    minutes -= chunk;
-                    if (midnights > 0) DailyTick();
+                    if (at > now && at < limit) limit = at;
                 }
+                foreach (var s in Alive.Where(x => x.IsDispatched)) Consider(s.DispatchReturnAtMinute);
+                var (startHour, _) = GameTime.OutingWindow(Time.Season);
+                Consider(now - Time.MinuteOfDay + startHour * 60);
+                Consider(Home.HouseProtectedUntilMinute);
 
-                foreach (var s in Alive.Where(x => x.IsDispatched && x.DispatchReturnAtMinute <= Time.TotalMinutes).ToList())
-                    CompleteDispatch(s);
+                int chunk = (int)(limit - now);
+                ApplyElapsed(chunk / 60.0);
+                int midnights = Time.Advance(chunk);
+                minutes -= chunk;
+                if (midnights > 0) DailyTick();
                 ResolveDeaths();
             }
+        }
+
+        private void ProcessDueEvents()
+        {
+            foreach (var s in Alive.Where(x => x.IsDispatched && x.DispatchReturnAtMinute <= Time.TotalMinutes).ToList())
+                CompleteDispatch(s, autoRepeat: true);
+            if (Time.IsWithinOutingWindow)
+                foreach (var s in Alive.Where(x => x.AutoDispatchDirection.HasValue && x.Location == SurvivorLocation.Home).ToList())
+                    TryAutoDispatch(s);
+            ResolveDeaths();
         }
 
         /// <summary>
@@ -239,11 +320,11 @@ namespace Catpo.Core
         private void ApplyElapsed(double hours)
         {
             if (hours <= 0) return;
-            bool homeUnpurified = Home.HousePurity <= 0;
+            bool homeUnprotected = !Home.IsHouseProtected(Time.TotalMinutes);
             foreach (var s in Alive)
             {
-                if (s.Location == SurvivorLocation.Outside) InfectionRules.ExposeOutside(s, hours);
-                else if (homeUnpurified) InfectionRules.AddContamination(s, Balance.UnpurifiedHomeContaminationPerHour * hours);
+                // 정화가 끊긴 집은 바깥에 있는 것처럼 오염도가 오른다 [확정]
+                if (s.Location == SurvivorLocation.Outside || homeUnprotected) InfectionRules.ExposeOutside(s, hours);
                 NeedsRules.OnTimePassed(s, hours);
                 StressRules.OnTimePassed(s, hours);
             }
@@ -275,8 +356,6 @@ namespace Catpo.Core
         {
             foreach (var s in Alive.ToList()) InfectionRules.DailyTick(s, RegionExtraContaminationPerDay);
 
-            Home.LosePurity(Balance.HousePurityDailyLoss);
-
             Home.DamageFrontDoor(Balance.FrontDoorDailyDamage);
             if (Home.FrontDoor <= 0) EndWorld("무너진 현관");
 
@@ -284,11 +363,10 @@ namespace Catpo.Core
             if (Home.RainedToday) CollectRain();
         }
 
-        /// <summary>비 오는 날 빗물받이마다 빗물이 모인다 [제안].</summary>
+        /// <summary>비 오는 날 빗물받이에 빗물이 모인다 [제안 수치].</summary>
         internal void CollectRain()
         {
-            int amount = Home.RainCollectors * Balance.RainWaterPerCollector;
-            if (amount > 0) Storage.Add(ItemCatalog.RainWater.Id, amount);
+            if (Home.RainCollectorCapacity > 0) Storage.Add(ItemCatalog.RainWater.Id, Home.RainCollectorCapacity);
         }
 
         private void EndWorld(string reason)
@@ -309,6 +387,7 @@ namespace Catpo.Core
                     dead.OutingDirection = null;
                 }
                 dead.IsDispatched = false;
+                dead.DispatchPlan = new List<DispatchPick>();
                 foreach (var other in Alive) StressRules.OnCompanionDeath(other);
                 if (dead.Definition == CharacterCatalog.Jipnyang) EndWorld($"집냥이의 마지막 ({dead.DeathCause})");
             }

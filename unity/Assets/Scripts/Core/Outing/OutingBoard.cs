@@ -20,6 +20,16 @@ namespace Catpo.Core
         Resting,
         OutsideWindowClosed,
         DirectionOccupied,
+        /// <summary>사람이 맡은 캐릭터는 AI 파견을 보낼 수 없다.</summary>
+        PlayerControlled,
+    }
+
+    /// <summary>AI 파견 계획의 한 줄: 출발 뒤 몇 분째에 어느 오브젝트에서 무엇을 줍는지.</summary>
+    internal sealed class DispatchPick
+    {
+        public LootSpot Spot;
+        public string ItemId;
+        public double AtMinute;
     }
 
     /// <summary>
