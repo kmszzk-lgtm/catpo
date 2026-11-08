@@ -6,7 +6,8 @@ namespace Catpo.Core
 {
     /// <summary>
     /// 화면 하나가 쓰는 게임 진행. Unity 화면은 이걸 그려 주고 버튼을 이걸로 연결하기만 한다.
-    /// - 실제 시간이 흐르면 게임 시간이 흐른다 (게임 1시간 = 실제 3분 [제안]). 빠르게 돌려 볼 수 있다.
+    /// - 실제 시간이 흐르면 게임 시간이 흐른다 (게임 1시간 = 실제 3분 [제안]).
+    ///   시간을 빠르게 하거나 멈추는 기능은 없다 [확정]. 멀티에서 호스트가 시간을 마음대로 바꾸면 안 되기 때문이다.
     /// - 집 안 일은 바로 결과가 나오고, 그 사람은 걸리는 시간 동안 다른 일을 못 한다.
     /// - 일어난 일을 글로 남긴다 (돌아옴, 창고에 들어옴, 비, 정화 끊김, 죽음 등).
     /// </summary>
@@ -14,13 +15,9 @@ namespace Catpo.Core
     {
         public const int MaxLogLines = 100;
 
-        /// <summary>시간 배속: 멈춤, 보통(게임 1시간 = 실제 3분), 10배, 60배(게임 1시간 = 실제 3초).</summary>
-        public static readonly IReadOnlyList<double> Speeds = new double[] { 0, 1, 10, 60 };
-
         public GameState State { get; }
         public Survivor Player { get; private set; }
         public bool HasChosenPlayer => Player != null;
-        public double Speed { get; set; } = 1;
         public IReadOnlyList<string> Log => log;
 
         private readonly List<string> log = new List<string>();
@@ -47,11 +44,11 @@ namespace Catpo.Core
 
         // ── 시간 ───────────────────────────────────────────────────────
 
-        /// <summary>실제 시간이 흐름. 캐릭터를 고르기 전, 멈춤, 월드가 끝난 뒤에는 흐르지 않는다.</summary>
+        /// <summary>실제 시간이 흐름. 캐릭터를 고르기 전과 월드가 끝난 뒤에는 흐르지 않는다.</summary>
         public void Tick(double realSeconds)
         {
-            if (!HasChosenPlayer || State.IsWorldOver || Speed <= 0 || realSeconds <= 0) return;
-            pendingMinutes += realSeconds * Speed * 60.0 / Balance.RealSecondsPerGameHour;
+            if (!HasChosenPlayer || State.IsWorldOver || realSeconds <= 0) return;
+            pendingMinutes += realSeconds * 60.0 / Balance.RealSecondsPerGameHour;
             int whole = (int)pendingMinutes;
             if (whole <= 0) return;
             pendingMinutes -= whole;

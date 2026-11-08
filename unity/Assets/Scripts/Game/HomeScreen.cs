@@ -177,20 +177,6 @@ namespace Catpo.Game
             GUILayout.BeginHorizontal();
             GUILayout.Label(session.ClockText, title, GUILayout.Width(260));
             GUILayout.FlexibleSpace();
-            GUILayout.Label("시간", small, GUILayout.Width(40));
-            foreach (var speed in PlaySession.Speeds)
-            {
-                bool on = Math.Abs(session.Speed - speed) < 1e-9;
-                var keep = GUI.backgroundColor;
-                if (on) GUI.backgroundColor = Highlight;
-                if (GUILayout.Button(SpeedName(speed), button, GUILayout.Width(64), GUILayout.Height(30)))
-                {
-                    double pick = speed;
-                    Later(() => session.Speed = pick);
-                }
-                GUI.backgroundColor = keep;
-            }
-            GUILayout.Space(16);
             if (GUILayout.Button("모두 잠자기", button, GUILayout.Width(120), GUILayout.Height(30)))
                 Later(() => session.Sleep());
             GUILayout.EndHorizontal();
@@ -480,9 +466,6 @@ namespace Catpo.Game
         private int Count(ItemDefinition item) => session.State.Storage.Count(item.Id);
 
         private static readonly Color Highlight = new Color(1f, 0.8f, 0.35f);
-
-        private static string SpeedName(double speed) =>
-            speed <= 0 ? "멈춤" : Math.Abs(speed - 1) < 1e-9 ? "보통" : $"×{speed:0}";
 
         private static string PlaceName(Place p)
         {

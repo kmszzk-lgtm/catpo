@@ -54,25 +54,20 @@ namespace Catpo.Core.Tests
         }
 
         [Test]
-        public void 실제_3분이_게임_1시간이고_배속과_멈춤이_있다()
+        public void 실제_3분이_게임_1시간이고_시간을_바꾸는_기능은_없다()
         {
             play.ChoosePlayer(jip);
             play.Tick(Balance.RealSecondsPerGameHour);
             Assert.That(state.Time.Hour, Is.EqualTo(8));
             Assert.That(state.Time.Minute, Is.EqualTo(0));
 
-            play.Speed = 10;
-            play.Tick(Balance.RealSecondsPerGameHour / 10);
-            Assert.That(state.Time.Hour, Is.EqualTo(9));
-
-            play.Speed = 0;
-            play.Tick(1000);
-            Assert.That(state.Time.Hour, Is.EqualTo(9));
-
             // 1분이 안 되는 짧은 시간도 모였다가 흐른다
-            play.Speed = 1;
             for (int i = 0; i < 60; i++) play.Tick(Balance.RealSecondsPerGameHour / 60.0 / 2);
-            Assert.That(state.Time.MinuteOfDay, Is.EqualTo(9 * 60 + 30));
+            Assert.That(state.Time.MinuteOfDay, Is.EqualTo(8 * 60 + 30));
+
+            // 멀티에서 호스트가 시간을 바꾸면 안 된다 [확정]: 배속·멈춤이 없다
+            Assert.That(typeof(PlaySession).GetProperty("Speed"), Is.Null);
+            Assert.That(typeof(PlaySession).GetField("Speeds"), Is.Null);
         }
 
         // ── 집 안 일 ───────────────────────────────────────────────────

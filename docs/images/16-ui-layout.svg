@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1560" viewBox="0 0 1280 1560" font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+  <style>
+    .t{fill:#e8e8e8;font-size:15px}.s{fill:#b8bcc4;font-size:13px}.b{font-weight:bold}
+    .p{fill:#2b2f36;stroke:#454a53}.e{fill:none;stroke:#7fb3ff;stroke-dasharray:6 4;stroke-width:2}.et{fill:#7fb3ff;font-size:13px}
+    .btn{fill:#3a4049;stroke:#5a616c}.acc{fill:#f0b84a}
+  </style>
+  <rect width="1280" height="1560" fill="#15171b"/>
+
+  <!-- ① 집 화면 -->
+  <text x="16" y="28" class="t b" font-size="18">① 집 화면 — 옥상과 옥탑방을 한 화면에 (탑뷰). 내 캐릭터를 직접 움직여 시설에 다가가 상호작용</text>
+  <text x="1264" y="28" class="et" text-anchor="end">파란 점선 = 이지에서 열리는 자리</text>
+  <g transform="translate(0,40)">
+    <rect width="1280" height="720" fill="#1e2126"/>
+    <rect width="1280" height="52" class="p"/>
+    <text x="16" y="33" class="t b" font-size="20">봄 1일째 09:04</text>
+    <text x="190" y="32" class="t">맑음 · 외출 09:00~18:00 (지금 가능) · 집 정화 21시간 남음 · 현관 100</text>
+    <text x="760" y="32" class="s">시간 조절 버튼 없음</text>
+    <rect x="890" y="10" width="180" height="32" rx="6" class="e"/><text x="980" y="31" class="et" text-anchor="middle">거점: 옥탑방 주택</text>
+    <rect x="1080" y="10" width="86" height="32" rx="6" class="btn"/><text x="1123" y="31" class="t" text-anchor="middle">알림</text>
+    <rect x="1176" y="10" width="92" height="32" rx="6" class="btn"/><text x="1222" y="31" class="t" text-anchor="middle">메뉴</text>
+
+    <text x="14" y="80" class="s">아래층 (터치)</text>
+    <g class="t">
+      <rect x="12" y="90" width="124" height="78" rx="8" class="btn"/><text x="74" y="122" text-anchor="middle">3층</text><text x="74" y="146" class="s" text-anchor="middle">작업대·의무실</text>
+      <rect x="12" y="180" width="124" height="78" rx="8" class="btn"/><text x="74" y="212" text-anchor="middle">2층</text><text x="74" y="236" class="s" text-anchor="middle">작업대 일부</text>
+      <rect x="12" y="270" width="124" height="78" rx="8" class="btn"/><text x="74" y="302" text-anchor="middle">1층</text><text x="74" y="326" class="s" text-anchor="middle">현관 100/100</text>
+      <rect x="12" y="360" width="124" height="78" rx="8" class="btn"/><text x="74" y="392" text-anchor="middle">지하</text><text x="74" y="416" class="s" text-anchor="middle">바이오쿨러</text>
+    </g>
+
+    <rect x="150" y="64" width="830" height="556" rx="8" fill="#3d424a"/>
+    <text x="164" y="88" class="s">옥상</text>
+    <rect x="170" y="98" width="390" height="250" rx="4" fill="#6b5a48"/>
+    <text x="184" y="122" class="t b">옥탑방</text>
+    <rect x="190" y="134" width="160" height="70" rx="6" fill="#857059"/><text x="270" y="175" class="t" text-anchor="middle">잠자리</text>
+    <rect x="370" y="134" width="170" height="70" rx="6" fill="#857059"/><text x="455" y="165" class="t" text-anchor="middle">공용 창고</text><text x="455" y="188" class="s" text-anchor="middle">(수납장)</text>
+    <rect x="190" y="220" width="160" height="70" rx="6" fill="#857059"/><text x="270" y="261" class="t" text-anchor="middle">가스버너</text>
+    <rect x="370" y="220" width="170" height="70" rx="6" fill="#857059"/><text x="455" y="251" class="t" text-anchor="middle">취미 상자</text><text x="455" y="274" class="s" text-anchor="middle">화투·트럼프</text>
+    <rect x="420" y="344" width="60" height="8" fill="#3d424a"/><text x="450" y="368" class="s" text-anchor="middle">문</text>
+
+    <circle cx="640" cy="200" r="36" fill="#b5542f"/><text x="640" y="205" class="t" text-anchor="middle">모닥불</text>
+    <rect x="850" y="96" width="110" height="74" rx="6" fill="#4f6b80"/><text x="905" y="138" class="t" text-anchor="middle">빗물받이</text>
+    <rect x="650" y="380" width="230" height="130" rx="6" class="e"/><text x="765" y="440" class="et" text-anchor="middle">옥상 텃밭 (나중에)</text>
+    <rect x="460" y="560" width="200" height="54" rx="6" fill="#8a7a55"/><text x="560" y="593" class="t" text-anchor="middle">도르래 (파견 출발)</text>
+    <text x="672" y="593" class="s">← 내려가면 집 앞 사거리</text>
+
+    <circle cx="700" cy="250" r="18" class="acc"/><text x="700" y="256" fill="#222" font-size="14" text-anchor="middle">★</text>
+    <text x="700" y="286" class="t" text-anchor="middle">의냥이 (나)</text>
+    <rect x="726" y="214" width="150" height="34" rx="6" fill="#f0b84a" opacity="0.9"/><text x="801" y="236" fill="#222" font-size="14" text-anchor="middle">모닥불: [요리]</text>
+    <circle cx="270" cy="318" r="16" fill="#9fc29a"/><text x="300" y="323" class="s">집냥이 · 물 끓이는 중</text>
+    <circle cx="900" cy="310" r="16" fill="#9fc29a"/><text x="900" y="342" class="s" text-anchor="middle">길냥이 (친구)</text>
+
+    <text x="994" y="80" class="s">사람</text>
+    <g>
+      <rect x="990" y="88" width="278" height="92" rx="8" class="btn" stroke="#f0b84a" stroke-width="2"/>
+      <text x="1004" y="112" class="t b">★ 의냥이 (나) · 집</text>
+      <text x="1004" y="136" class="s">오염 ▮▯▯▯▯  스트레스 ▮▯▯▯▯</text><text x="1004" y="158" class="s">배고픔 ▮▯▯▯▯  목마름 ▮▮▯▯▯</text>
+      <rect x="990" y="188" width="278" height="92" rx="8" class="btn"/>
+      <text x="1004" y="212" class="t b">집냥이 (AI) · 집</text><text x="1004" y="236" class="s">물 끓이는 중 · 09:48까지</text><text x="1004" y="258" class="s">오염 ▮▯▯▯▯  스트레스 ▮▮▯▯▯</text>
+      <rect x="990" y="288" width="278" height="92" rx="8" class="btn"/>
+      <text x="1004" y="312" class="t b">군냥이 (AI) · 북쪽 파견</text><text x="1004" y="336" class="s">13:24쯤 귀환</text><text x="1004" y="358" class="s">오염 ▮▮▯▯▯  스트레스 ▮▯▯▯▯</text>
+      <rect x="990" y="388" width="278" height="92" rx="8" class="btn"/>
+      <text x="1004" y="412" class="t b">길냥이 (친구: ○○님) · 집</text><text x="1004" y="436" class="s">멀티: 다른 사람이 맡은 캐릭터</text><text x="1004" y="458" class="s">오염 ▮▯▯▯▯  스트레스 ▮▯▯▯▯</text>
+    </g>
+
+    <circle cx="74" cy="610" r="56" fill="#2b2f36" stroke="#5a616c"/><circle cx="74" cy="610" r="22" fill="#5a616c"/><text x="74" y="690" class="s" text-anchor="middle">이동 (조이스틱)</text>
+    <g class="t">
+      <rect x="160" y="640" width="96" height="44" rx="8" class="btn"/><text x="208" y="668" text-anchor="middle">파견</text>
+      <rect x="264" y="640" width="96" height="44" rx="8" class="btn"/><text x="312" y="668" text-anchor="middle">창고</text>
+      <rect x="368" y="640" width="96" height="44" rx="8" class="btn"/><text x="416" y="668" text-anchor="middle">제작</text>
+      <rect x="472" y="640" width="96" height="44" rx="8" class="btn"/><text x="520" y="668" text-anchor="middle">사람</text>
+      <rect x="576" y="640" width="96" height="44" rx="8" class="btn"/><text x="624" y="668" text-anchor="middle">기록</text>
+    </g>
+    <rect x="680" y="640" width="96" height="44" rx="8" class="e"/><text x="728" y="668" class="et" text-anchor="middle">연합</text>
+    <rect x="784" y="640" width="96" height="44" rx="8" class="e"/><text x="832" y="668" class="et" text-anchor="middle">지도</text>
+    <circle cx="1196" cy="620" r="58" fill="#f0b84a"/><text x="1196" y="626" fill="#222" font-size="17" font-weight="bold" text-anchor="middle">상호작용</text>
+    <circle cx="1060" cy="660" r="36" class="btn"/><text x="1060" y="665" class="t" text-anchor="middle">가방</text>
+    <circle cx="1060" cy="570" r="30" class="btn"/><text x="1060" y="575" class="s" text-anchor="middle">퀵슬롯</text>
+  </g>
+
+  <!-- ② 파견 화면 -->
+  <text x="16" y="800" class="t b" font-size="18">② [파견] 탭 — 탐색과 전투는 파견으로. 방향을 고르고, 누구를 무엇과 함께 보낼지 정한다</text>
+  <g transform="translate(0,816)">
+    <rect width="1280" height="720" fill="#1e2126"/>
+    <rect width="1280" height="52" class="p"/>
+    <text x="16" y="33" class="t b" font-size="20">파견 — 집 앞 사거리에서 4방향</text>
+    <text x="360" y="32" class="t">외출 09:00~18:00 · 지금 09:04 · 한 방향에는 한 번에 한 명</text>
+    <rect x="1196" y="10" width="72" height="32" rx="6" class="btn"/><text x="1232" y="31" class="t" text-anchor="middle">닫기</text>
+
+    <g>
+      <rect x="16" y="68" width="370" height="220" rx="10" class="btn" stroke="#f0b84a" stroke-width="2"/>
+      <text x="32" y="100" class="t b" font-size="18">북쪽</text><text x="32" y="126" class="s">편의점 2곳 · 공구점 · 주택</text>
+      <text x="32" y="160" class="t">남은 물자 ▮▮▮▮▯ 많음</text><text x="32" y="186" class="t">위험 낮음</text>
+      <rect x="32" y="214" width="338" height="54" rx="8" fill="#4a3f2a"/><text x="201" y="238" class="t" text-anchor="middle">군냥이 파견 중</text><text x="201" y="259" class="s" text-anchor="middle">13:24쯤 귀환</text>
+
+      <rect x="400" y="68" width="370" height="220" rx="10" class="btn"/>
+      <text x="416" y="100" class="t b" font-size="18">동쪽</text><text x="416" y="126" class="s">주택가</text>
+      <text x="416" y="160" class="t">남은 물자 ▮▮▯▯▯ 보통</text><text x="416" y="186" class="t">위험 보통</text>
+      <rect x="416" y="214" width="338" height="54" rx="8" fill="#f0b84a"/><text x="585" y="247" fill="#222" font-size="16" font-weight="bold" text-anchor="middle">이쪽으로 보내기</text>
+
+      <rect x="16" y="300" width="370" height="220" rx="10" class="btn"/>
+      <text x="32" y="332" class="t b" font-size="18">남쪽</text><text x="32" y="358" class="s">주택가</text>
+      <text x="32" y="392" class="t">남은 물자 ▮▯▯▯▯ 적음</text><text x="32" y="418" class="t">위험 낮음</text>
+      <text x="32" y="460" class="s">물자가 적으면 찾는 데 오래 걸려 늦게 돌아온다</text>
+
+      <rect x="400" y="300" width="370" height="220" rx="10" class="btn"/>
+      <text x="416" y="332" class="t b" font-size="18">서쪽</text><text x="416" y="358" class="s">시청 방향 큰길</text>
+      <text x="416" y="392" class="t">남은 물자 ▮▮▮▯▯ 보통</text><text x="416" y="418" class="t">위험 높음</text>
+      <rect x="416" y="436" width="338" height="66" rx="8" class="e"/><text x="585" y="464" class="et" text-anchor="middle">지역 보스: 거대 호랑이</text><text x="585" y="486" class="et" text-anchor="middle">오염도 하루 +5 · 안정화하면 새 지역</text>
+    </g>
+
+    <rect x="786" y="68" width="478" height="452" rx="10" class="p"/>
+    <text x="802" y="100" class="t b" font-size="18">동쪽으로 보내기</text>
+    <text x="802" y="134" class="t">누가</text>
+    <rect x="802" y="146" width="140" height="44" rx="8" fill="#f0b84a"/><text x="872" y="174" fill="#222" text-anchor="middle">의냥이 (나)</text>
+    <rect x="952" y="146" width="140" height="44" rx="8" class="btn"/><text x="1022" y="174" class="t" text-anchor="middle">길냥이</text>
+    <rect x="1102" y="146" width="146" height="44" rx="8" class="btn" opacity="0.45"/><text x="1175" y="174" class="s" text-anchor="middle">집냥이 (못 나감)</text>
+    <text x="802" y="226" class="t">가져갈 것 (무게 2.1 / 8kg)</text>
+    <text x="802" y="252" class="s">미끼: 술병 1 · 돌 0   음식: 초콜릿 2   물: 생수 1   정화제 0</text>
+    <text x="802" y="290" class="t">작전 <tspan class="et">(정할 것 · Q101)</tspan></text>
+    <rect x="802" y="302" width="140" height="40" rx="8" class="btn"/><text x="872" y="328" class="t" text-anchor="middle">물자 우선</text>
+    <rect x="952" y="302" width="140" height="40" rx="8" class="btn"/><text x="1022" y="328" class="t" text-anchor="middle">조용히</text>
+    <rect x="1102" y="302" width="146" height="40" rx="8" class="btn"/><text x="1175" y="328" class="t" text-anchor="middle">싸우며 수색</text>
+    <text x="802" y="376" class="t">예상: 약 4시간 · 돌아올 때 오염도 약 +16</text>
+    <text x="802" y="402" class="s">사람이 맡은 캐릭터와 AI의 차이는 정할 것 (Q100)</text>
+    <rect x="802" y="430" width="446" height="70" rx="10" fill="#f0b84a"/><text x="1025" y="473" fill="#222" font-size="20" font-weight="bold" text-anchor="middle">보내기</text>
+
+    <rect x="16" y="536" width="1248" height="168" rx="10" class="p"/>
+    <text x="32" y="564" class="t b">보고</text>
+    <text x="32" y="592" class="t">13:24  군냥이 북쪽에서 귀환 — 라면 12, 초콜릿 10, 비닐봉투 10 · 오염도 +18 · 좀비 2마리를 피함</text>
+    <text x="32" y="618" class="s">어제 17:40  길냥이 동쪽에서 귀환 — 통조림 3, 종이 6 · 오염도 +22 · 긁힘 1번</text>
+    <rect x="32" y="636" width="600" height="54" rx="8" class="e"/><text x="48" y="668" class="et">연합 요청: 목수팀 방어벽이 위험하다 → [싸움 잘하는 사람 보내기]</text>
+  </g>
+</svg>

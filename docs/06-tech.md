@@ -38,7 +38,7 @@ catpo/
 │     ├─ Field/FieldMap.cs            바깥 필드의 수색 대상과 고갈
 │     ├─ Items/Items.cs               아이템, 인벤토리, 무게
 │     ├─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
-│     └─ Session/                     화면 하나가 쓰는 진행: 실시간 시계와 배속, 일하는 중(바쁨), 일어난 일 글, 한국어 조사
+│     └─ Session/                     화면 하나가 쓰는 진행: 실시간 시계(조절 없음), 일하는 중(바쁨), 일어난 일 글, 한국어 조사
 └─ tests/
    ├─ Catpo.Core.Tests/               .NET 테스트. Core 소스를 링크해서 컴파일
    └─ UnityCompileCheck/              Unity와 같은 조건(.NET Standard 2.1, C# 9, 어셈블리 분리)으로 컴파일하고 돌려 본다

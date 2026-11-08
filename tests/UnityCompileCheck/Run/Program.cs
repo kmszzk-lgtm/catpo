@@ -59,9 +59,9 @@ public static class Program
         Click("북쪽");
         Expect(Shows("지금은 외출할 수 있는 시간이 아니다."), "아침 7시에는 파견을 못 보낸다");
 
-        Click("×60");
-        RunSeconds(6); // 게임 2시간
-        Expect(Shows("1일째 봄 09:00"), "×60이면 실제 6초에 게임 2시간");
+        Expect(!Ui.Drawn.Any(t => t.StartsWith("×", StringComparison.Ordinal) || t == "멈춤"), "시간을 바꾸는 버튼이 없다");
+        RunSeconds(6 * 60); // 실제 6분 = 게임 2시간
+        Expect(Shows("1일째 봄 09:00"), "실제 3분이 게임 1시간");
 
         Click("북쪽");
         Expect(Shows("군냥이가 북쪽으로 파견을 나갔다"), "파견 출발");
@@ -70,7 +70,7 @@ public static class Program
         Click("모두 잠자기");
         Expect(Shows("밖에 나간 사람이 돌아와야 잘 수 있다."), "밖에 사람이 있으면 못 잔다");
 
-        RunSeconds(20);
+        RunSeconds(20 * 60);
         Expect(Shows("군냥이가 북쪽에서 돌아왔다."), "파견에서 돌아온다");
         Expect(Ui.Drawn.Any(t => t.StartsWith("창고에 들어옴: ", StringComparison.Ordinal)), "가져온 물건이 글로 나온다");
 
@@ -82,7 +82,7 @@ public static class Program
         Expect(Shows("누구 몸을 정화할까?"), "몸 정화 대상 고르기");
         Click("→ 군냥이");
         Expect(Shows("다른 일을 하는 중"), "정화제를 만드는 동안은 다른 일을 못 한다");
-        RunSeconds(2);
+        RunSeconds(2 * 60);
         Click("몸 정화해 주기");
         Click("→ 군냥이");
         Expect(Shows("의냥이: 군냥이 몸 정화"), "일을 마치면 몸 정화");
