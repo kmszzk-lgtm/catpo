@@ -1,0 +1,17 @@
+# .NET 테스트 빌드 결과
+bin/
+obj/
+*.user
+
+# Unity가 자동으로 만드는 폴더와 파일
+unity/[Ll]ibrary/
+unity/[Tt]emp/
+unity/[Oo]bj/
+unity/[Bb]uild/
+unity/[Bb]uilds/
+unity/[Ll]ogs/
+unity/[Uu]ser[Ss]ettings/
+unity/*.csproj
+unity/*.sln
+unity/.vs/
+unity/.vscode/

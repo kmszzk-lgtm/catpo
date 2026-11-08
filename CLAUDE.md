@@ -21,4 +21,6 @@
 - 클라우드 환경에서는 Unity 에디터를 실행할 수 없다. Unity 쪽 확인은 기획자 PC에서 한다.
 - 게임 규칙은 `UnityEngine`을 참조하지 않는 순수 C#(C# 9 범위)으로 짜고, .NET + NUnit으로 테스트한다.
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`으로 설치한다.
+- 테스트: `dotnet test tests/Catpo.Core.Tests`. 규칙 코드를 바꾸면 테스트도 함께 고치거나 추가한다.
+- 밸런스 수치는 `Balance.cs`에 모으고 [확정]/[제안]을 주석으로 표시한다.
 - 구조는 `docs/06-tech.md` 참고.
