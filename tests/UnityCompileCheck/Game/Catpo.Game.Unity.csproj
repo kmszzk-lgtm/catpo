@@ -1,0 +1,17 @@
+<!-- Unity의 Catpo.Game 어셈블리(옥탑방 화면)와 같은 조건으로 컴파일한다 -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>Catpo.Game</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../unity/Assets/Scripts/Game/**/*.cs" Link="Game/%(RecursiveDir)%(Filename)%(Extension)" />
+    <ProjectReference Include="../Core/Catpo.Core.Unity.csproj" />
+    <ProjectReference Include="../UnityStub/UnityStub.csproj" />
+  </ItemGroup>
+</Project>

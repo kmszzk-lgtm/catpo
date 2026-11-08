@@ -23,6 +23,7 @@
 - 게임 규칙은 `UnityEngine`을 참조하지 않는 순수 C#(C# 9 범위)으로 짜고, .NET + NUnit으로 테스트한다.
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`으로 설치한다.
 - 테스트: `dotnet test tests/Catpo.Core.Tests`. 규칙 코드를 바꾸면 테스트도 함께 고치거나 추가한다.
-- Unity 조건 확인: `dotnet run --project tests/UnityCompileCheck/Editor`. 규칙 코드나 에디터 스크립트를 바꾸면 커밋 전에 꼭 돌린다 (테스트로는 어셈블리가 나뉘어서 생기는 오류를 못 잡는다).
+- Unity 조건 확인: `dotnet run --project tests/UnityCompileCheck/Run`. 규칙 코드나 Unity 스크립트를 바꾸면 커밋 전에 꼭 돌린다 (테스트로는 어셈블리가 나뉘어서 생기는 오류를 못 잡는다). Unity API를 새로 쓰면 `tests/UnityCompileCheck/UnityStub`에 실제 Unity와 같은 모양으로 추가한다.
+- 새 스크립트·폴더를 만들면 Unity `.meta` 파일도 같이 만든다 (guid는 새로).
 - 밸런스 수치는 `Balance.cs`에 모으고 [확정]/[제안]을 주석으로 표시한다.
 - 구조는 `docs/06-tech.md` 참고.

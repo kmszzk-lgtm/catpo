@@ -237,6 +237,7 @@ namespace Catpo.Core
         {
             if (!s.AutoDispatchDirection.HasValue || s.ControlledByPlayer || s.IsDead) return false;
             if (s.Location != SurvivorLocation.Home) return false;
+            if (s.BusyUntilMinute > Time.TotalMinutes) return false; // 집 안 일을 마치고 나간다
             if (s.Contamination >= Balance.AutoDispatchContaminationLimit) return false;
             if (!Field.Remaining(s.AutoDispatchDirection.Value).Any()) return false;
             if (DispatchBudgetMinutes() < Balance.MinDispatchHours * 60) return false;

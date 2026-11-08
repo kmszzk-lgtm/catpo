@@ -1,0 +1,10 @@
+<!-- Unity 없이 컴파일하고 돌려 보기 위한 UnityEngine·UnityEditor 흉내. 우리 코드가 쓰는 것만 둔다. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>UnityEngineStub</AssemblyName>
+  </PropertyGroup>
+</Project>

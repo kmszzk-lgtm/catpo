@@ -60,6 +60,8 @@ namespace Catpo.Core
 
         // AI 파견 중이면 정해진 시각에 저절로 돌아온다
         public bool IsDispatched { get; internal set; }
+        /// <summary>집 안 일을 하는 중이면 이 시각(게임 분)까지 다른 일을 할 수 없다.</summary>
+        public long BusyUntilMinute { get; internal set; }
         internal long DispatchStartMinute { get; set; }
         public long DispatchReturnAtMinute { get; internal set; }
         internal List<DispatchPick> DispatchPlan { get; set; } = new List<DispatchPick>();

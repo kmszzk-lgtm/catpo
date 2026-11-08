@@ -1,0 +1,21 @@
+<!--
+  Unity 없이 Unity 쪽 코드를 확인한다. 실행 방법은 docs/06-tech.md 참고.
+  1. 에디터 메뉴(좀비냥 > 규칙 코드 확인)를 돌린다.
+  2. 옥탑방 화면을 정해진 순서로 눌러 보고, 화면에 나와야 할 글이 나오는지 본다.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Catpo.Core.Unity.csproj" />
+    <ProjectReference Include="../UnityStub/UnityStub.csproj" />
+    <ProjectReference Include="../Game/Catpo.Game.Unity.csproj" />
+    <ProjectReference Include="../Editor/Catpo.EditorTools.Check.csproj" />
+  </ItemGroup>
+</Project>

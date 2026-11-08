@@ -1,0 +1,16 @@
+{
+    "name": "Catpo.Game",
+    "rootNamespace": "Catpo.Game",
+    "references": [
+        "Catpo.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

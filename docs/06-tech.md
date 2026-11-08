@@ -21,9 +21,10 @@
 ```
 catpo/
 ├─ docs/                              기획 문서
-├─ unity/                             Unity 프로젝트 폴더 (지금은 Assets만 있음)
+├─ unity/                             Unity 프로젝트 폴더
 │  ├─ ProjectSettings/ProjectVersion.txt   Unity 6.6 (6000.6.8f1). 나머지는 Unity가 만든다
 │  ├─ Assets/Scripts/Editor/          Unity 메뉴 "좀비냥 > 규칙 코드 확인" (Catpo.EditorTools.asmdef, 에디터 전용)
+│  ├─ Assets/Scripts/Game/            Unity 화면 (Catpo.Game.asmdef). ▶를 누르면 저절로 옥탑방 화면이 뜬다 (IMGUI 시험판)
 │  └─ Assets/Scripts/Core/            규칙 코드. Catpo.Core.asmdef (엔진 참조 없음)
 │     ├─ Balance.cs                   밸런스 수치. [확정]/[제안] 표시
 │     ├─ GameState.cs                 월드 전체 상태: 시간, 캐릭터, 공용 창고, 외출, AI 파견, 잠자기, 하루 처리
@@ -36,10 +37,14 @@ catpo/
 │     ├─ Home/                        집 설비(불, 빗물받이, 현관, 집 정화), 집안일·치료, 시작 살림(10가구)
 │     ├─ Field/FieldMap.cs            바깥 필드의 수색 대상과 고갈
 │     ├─ Items/Items.cs               아이템, 인벤토리, 무게
-│     └─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
+│     ├─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
+│     └─ Session/                     화면 하나가 쓰는 진행: 실시간 시계와 배속, 일하는 중(바쁨), 일어난 일 글, 한국어 조사
 └─ tests/
    ├─ Catpo.Core.Tests/               .NET 테스트. Core 소스를 링크해서 컴파일
-   └─ UnityCompileCheck/              Unity와 같은 조건(.NET Standard 2.1, C# 9, 어셈블리 분리)으로 컴파일하고 에디터 메뉴를 실행
+   └─ UnityCompileCheck/              Unity와 같은 조건(.NET Standard 2.1, C# 9, 어셈블리 분리)으로 컴파일하고 돌려 본다
+      ├─ UnityStub/                   UnityEngine·UnityEditor 흉내 (우리 코드가 쓰는 API만)
+      ├─ Core/, Game/, Editor/        Unity의 어셈블리 3개를 따로 컴파일
+      └─ Run/                         에디터 메뉴를 돌리고, 옥탑방 화면을 정해진 순서로 눌러 본다
 ```
 
 - 규칙 코드 원본은 Unity 프로젝트 안에 한 벌만 둔다. 테스트 프로젝트는 그 파일을 링크해서 쓴다.
@@ -50,13 +55,13 @@ catpo/
 
 ```
 dotnet test tests/Catpo.Core.Tests
-dotnet run --project tests/UnityCompileCheck/Editor
+dotnet run --project tests/UnityCompileCheck/Run
 ```
 
-- 두 번째 명령은 Unity 에디터 메뉴를 Unity 없이 돌려 본다. 테스트는 규칙 코드를 테스트와 한 어셈블리로 묶어 컴파일해서 `internal` 멤버를 다른 어셈블리에서 쓰는 실수를 잡지 못한다. Unity에서는 규칙 코드(Catpo.Core)와 에디터 메뉴(Catpo.EditorTools)가 다른 어셈블리라 컴파일 오류가 된다. 2026-11-08에 이 실수로 Unity에서 Safe Mode 창이 떴다.
+- 두 번째 명령은 Unity 쪽 코드를 Unity 없이 돌려 본다. 에디터 메뉴를 돌리고, 옥탑방 화면을 사람이 누르는 순서대로 눌러 보면서 나와야 할 글이 나오는지, GUILayout Begin/End 짝이 맞는지 본다. 테스트는 규칙 코드를 테스트와 한 어셈블리로 묶어 컴파일해서 `internal` 멤버를 다른 어셈블리에서 쓰는 실수를 잡지 못한다. Unity에서는 규칙 코드(Catpo.Core)와 에디터 메뉴(Catpo.EditorTools)가 다른 어셈블리라 컴파일 오류가 된다. 2026-11-08에 이 실수로 Unity에서 Safe Mode 창이 떴다.
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
-- 2026-11-08 기준 테스트 112개 통과
+- 2026-11-08 기준 테스트 125개 통과, 화면 눌러 보기 25개 통과
 
 ## Unity에서 여는 방법 (기획자 PC)
 
@@ -68,7 +73,11 @@ dotnet run --project tests/UnityCompileCheck/Editor
 6. 위쪽 메뉴에 생긴 **좀비냥 > 규칙 코드 확인**을 누른다.
 7. **Console** 창(없으면 메뉴 **Window > General > Console**)에 결과가 나온다. 빨간 오류가 있으면 그대로 알려준다.
 
-나중에 Unity에서 만든 파일(`.meta`, `ProjectSettings`, `Packages`)을 레포에 올리려면 GitHub Desktop 같은 도구가 필요하다. 그때 따로 안내한다.
+### GitHub Desktop으로 받기 (2026-11-08부터)
+
+- 기획자 PC에 GitHub Desktop으로 레포를 받아 두었다. 고친 것을 받을 때는 **Fetch origin → Pull origin**.
+- Unity가 만든 파일(`.meta`, `ProjectSettings`, `Packages`)은 GitHub Desktop에서 Commit → Push로 올린다.
+- 클라우드에서 새 스크립트를 만들 때는 `.meta` 파일도 같이 만들어 올린다 (형식은 기존 `.meta`와 같게, guid는 새로).
 
 ## 데이터 (제안)
 
