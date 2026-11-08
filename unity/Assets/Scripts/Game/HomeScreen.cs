@@ -27,7 +27,7 @@ namespace Catpo.Game
     {
         private const float RefWidth = 1280f;
         private const float RefHeight = 720f;
-        private const float TopHeight = 70f;
+        private const float TopHeight = 88f;
         private const float LogHeight = 150f;
         private const float LeftWidth = 330f;
         private const float RightWidth = 270f;
