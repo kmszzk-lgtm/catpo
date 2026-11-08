@@ -2,7 +2,7 @@
 
 ## 엔진 (확정)
 
-- **Unity** (2026-11-07 결정). 버전은 **미정**. 최신 Unity 6 LTS를 추천.
+- **Unity** (2026-11-07 결정). 버전은 **Unity 6.6 (6000.6.8f1)** (확정, 2026-11-08).
 - 설치할 때 Android Build Support 모듈도 함께 설치.
 
 ## 작업 방식 (제안)
@@ -51,7 +51,7 @@ dotnet test tests/Catpo.Core.Tests
 ## Unity에서 여는 방법 (기획자 PC)
 
 1. Unity Hub에서 **Add → Add project from disk**를 누르고 레포의 `unity` 폴더를 고른다.
-2. 에디터 버전을 고르라고 하면 최신 Unity 6 LTS를 고른다.
+2. 에디터 버전을 고르라고 하면 **Unity 6.6 (6000.6.8f1)**을 고른다.
 3. Unity가 `ProjectSettings`, `Packages` 같은 나머지 파일과 `.meta` 파일을 만든다. 이 파일들은 레포에 커밋한다.
 4. 콘솔 창에 오류가 뜨면 오류 메시지를 그대로 알려준다.
 
