@@ -22,7 +22,8 @@ namespace Catpo.Core
         public double ActionSpeed = 1;
         public double FoodConsumption = 1;      // 음식을 먹을 때 소비량
         public double MedicalConsumptionWhenInjured = 1;
-        public bool HazesStayHome;              // 태움: 집에 있으면 외출하지 않은 사람에게 스트레스
+        public bool HazesStayHome;              // 태움: 집에 있으면 가끔 무작위 1명에게 스트레스
+        public double HomeActivityReliefPerHour; // 집에서 하는 모든 활동으로 스트레스가 풀림 (더해서 합침)
 
         public static TraitEffects Combine(IEnumerable<TraitEffects> effects)
         {
@@ -45,6 +46,7 @@ namespace Catpo.Core
                 r.FoodConsumption *= e.FoodConsumption;
                 r.MedicalConsumptionWhenInjured *= e.MedicalConsumptionWhenInjured;
                 r.HazesStayHome |= e.HazesStayHome;
+                r.HomeActivityReliefPerHour += e.HomeActivityReliefPerHour;
             }
             return r;
         }
@@ -78,7 +80,11 @@ namespace Catpo.Core
             new TraitEffects { CanGoOutside = false });                                    // [확정]
 
         public static readonly Trait LifeSkill = new Trait("life_skill", "생활력", true, true,
-            new TraitEffects { HomeActionSpeed = 1.25, HomeXp = 1.25 });                   // 보너스 [확정], 배율 [제안]
+            new TraitEffects
+            {
+                HomeActionSpeed = 1.25, HomeXp = 1.25,                                     // 보너스 [확정], 배율 [제안]
+                HomeActivityReliefPerHour = Balance.LifeSkillReliefPerHour,                // 집안 모든 활동으로 풀림 [확정]
+            });
 
         public static readonly Trait Drill = new Trait("drill", "얼차려", true, true,
             new TraitEffects { OutsideXp = 1.5, StressGeneration = 0.5 });                 // -50% [확정], 경험치 배율 [제안]

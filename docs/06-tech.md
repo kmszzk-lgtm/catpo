@@ -52,7 +52,7 @@ dotnet test tests/Catpo.Core.Tests
 ```
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
-- 2026-11-08 기준 테스트 108개 통과
+- 2026-11-08 기준 테스트 112개 통과
 
 ## Unity에서 여는 방법 (기획자 PC)
 

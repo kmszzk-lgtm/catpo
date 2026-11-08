@@ -34,7 +34,8 @@ namespace Catpo.EditorTools
                 state.Storage.Add(ItemCatalog.RainWater.Id, 2); // 비 온 셈 치기
                 Say($"집냥이 물 끓이기 (모닥불): {Describe(CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.Campfire))}");
                 Say($"의냥이 정화제 만들기 (소독약): {Describe(CraftingRules.TryCraft(state, ui, RecipeCatalog.PurifierFromDisinfectant))}");
-                Say($"집냥이 가구 분해: {Describe(HouseworkRules.BreakFurniture(state, jip))}");
+                state.Home.FrontDoor -= 10; // 현관이 조금 상한 셈 치기
+                Say($"집냥이 현관 보수 (나무 판): {Describe(HouseworkRules.RepairFrontDoor(state, jip, ItemCatalog.WoodBoard.Id))}");
 
                 state.Advance(9 * 60); // 18:00
                 LogState(state, "저녁 6시");
@@ -73,7 +74,8 @@ namespace Catpo.EditorTools
             }
             sb.AppendLine($"  창고: 생수 {Count(state, ItemCatalog.BottledWater)}, 통조림 {Count(state, ItemCatalog.CannedFood)}, " +
                           $"라면 {Count(state, ItemCatalog.InstantNoodle)}, 정화제 {Count(state, ItemCatalog.Purifier)}, " +
-                          $"끓인 물 {Count(state, ItemCatalog.BoiledWater)}, 나무 판 {Count(state, ItemCatalog.WoodBoard)}, " +
+                          $"끓인 물 {Count(state, ItemCatalog.BoiledWater)}, 나무 막대 {Count(state, ItemCatalog.WoodStick)}, " +
+                          $"나무 판 {Count(state, ItemCatalog.WoodBoard)}, " +
                           $"화투 {Count(state, ItemCatalog.Hanafuda)}, 트럼프 카드 {Count(state, ItemCatalog.PlayingCards)}");
             sb.AppendLine($"  현관 {state.Home.FrontDoor:0}, 빗물받이 {state.Home.RainCollectorCapacity}, " +
                           $"부탄가스 {Count(state, ItemCatalog.Butane)}통, 집 정화 {(state.Home.IsHouseProtected(state.Time.TotalMinutes) ? "유지 중" : "끊김")}");

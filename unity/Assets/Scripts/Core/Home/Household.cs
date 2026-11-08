@@ -30,7 +30,7 @@ namespace Catpo.Core
 
         public double FrontDoor { get; internal set; } = Balance.FrontDoorMax;
         /// <summary>집 안에 남은, 분해할 수 있는 가구 수.</summary>
-        public int FurnitureLeft { get; internal set; } = Balance.HomeFurniturePieces;
+        public int FurnitureLeft { get; internal set; } = Balance.HomeFurnitureLeftAtStart;
 
         /// <summary>집 정화가 유지되는 시각(게임 시간, 분). 매일 정화제를 써야 한다 [확정].</summary>
         public long HouseProtectedUntilMinute { get; internal set; }

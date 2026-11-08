@@ -45,7 +45,7 @@ namespace Catpo.Core.Tests
         [Test]
         public void 취향에_맞는_제작은_풀리고_안_맞는_제작은_쌓인다()
         {
-            var s = new Survivor(CharacterCatalog.Jipnyang) { Stress = 20 };
+            var s = new Survivor(CharacterCatalog.Uinyang) { Stress = 20 };
             StressRules.OnCraft(s, CraftTaste.Liked);
             Assert.That(s.Stress, Is.EqualTo(20 - Balance.ReliefLikedCraft));
             StressRules.OnCraft(s, CraftTaste.Disliked);

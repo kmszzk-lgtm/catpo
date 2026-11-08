@@ -69,6 +69,16 @@ namespace Catpo.Core
             else if (taste == CraftTaste.Disliked) Add(s, Balance.StressDislikedCraft);
         }
 
+        /// <summary>
+        /// 집 안 활동(제작, 집안일)을 마친 뒤. 집냥이(생활력)는 요리든 운동이든 밭 관리든
+        /// 집에서 하는 모든 활동으로 스트레스가 풀린다 [확정]. 양은 활동 시간에 비례 [제안].
+        /// </summary>
+        public static void OnHomeActivity(Survivor s, double hours)
+        {
+            double rate = s.Effects.HomeActivityReliefPerHour;
+            if (rate > 0 && hours > 0) Relieve(s, rate * hours);
+        }
+
         /// <summary>화투·트럼프 카드 같은 취미 물건은 둘 이상이 함께해야 한다 [확정]. 혼자면 아무 일도 없다.</summary>
         public static bool PlayHobby(IReadOnlyCollection<Survivor> participants, double hours)
         {

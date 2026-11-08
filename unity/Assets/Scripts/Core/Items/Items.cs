@@ -50,7 +50,7 @@ namespace Catpo.Core
         private static readonly Dictionary<string, ItemDefinition> items = new Dictionary<string, ItemDefinition>();
 
         // 물과 음식
-        public static readonly ItemDefinition BottledWater = Add("bottled_water", "생수", ItemCategory.Water, 2.0, thirstRelief: 50);
+        public static readonly ItemDefinition BottledWater = Add("bottled_water", "생수", ItemCategory.Water, 1.5, thirstRelief: 50); // 1.5L 한 통 [확정]
         /// <summary>빗물은 끓여야 마실 수 있다 [제안].</summary>
         public static readonly ItemDefinition RainWater = Add("rain_water", "빗물", ItemCategory.Water, 1.0);
         public static readonly ItemDefinition BoiledWater = Add("boiled_water", "끓인 물", ItemCategory.Water, 1.0, thirstRelief: 30);

@@ -48,6 +48,7 @@ namespace Catpo.Core
         public const double ReliefScarceResource = 15;       // [제안]
         public const double ReliefHobbyPerHour = 8;          // [제안] 둘 이상 함께 [확정]
         public const double ReliefLikedCraft = 5;            // [제안]
+        public const double LifeSkillReliefPerHour = 4;      // [제안] 집냥이는 집에서 하는 모든 활동으로 풀린다 [확정]
         public const double StressDislikedCraft = 5;         // [제안]
         public const double StressSensitiveThreshold = 40;   // [제안] 예민
         public const double StressLimitThreshold = 70;       // [제안] 한계
@@ -105,10 +106,10 @@ namespace Catpo.Core
         public const double DoorRepairPerTape = 5;           // [제안]
         public const double DoorRepairHours = 1;             // [제안]
         public const int BuildingHouseholds = 10;            // [확정] 지하 3, 2층 3, 3층 3, 옥탑방 1
-        public const int FurniturePerHousehold = 5;          // [제안] 침대, 매트리스, 테이블 등은 집집마다 많음 [확정]
-        public const int HomeFurniturePieces = BuildingHouseholds * FurniturePerHousehold;
-        public const int BoardsPerFurniture = 1;             // [제안] 가구 1개를 분해하면 나무 판 1개
-        public const int SticksPerFurniture = 2;             // [제안] 나무 막대 2개
+        public const int TablesPerHousehold = 1;             // [확정] 집마다 테이블은 하나씩 있다
+        public const int SticksPerFurniture = 4;             // [확정] 테이블 1개를 분해하면 나무 막대 4개
+        public const int BoardsPerFurniture = 1;             // [확정] 나무 판 1개
+        public const int HomeFurnitureLeftAtStart = 0;       // [확정] 안 쓰는 가구는 시작 전에 다 분해했다
         public const double BreakFurnitureHours = 1;         // [제안]
 
         // ── 집 정화 ────────────────────────────────────────────────────

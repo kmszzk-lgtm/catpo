@@ -34,9 +34,9 @@ namespace Catpo.Core.Tests
 
             Assert.That(state.Field.Take(gil, store, ItemCatalog.CannedFood.Id, 1), Is.EqualTo(0), "다른 방향의 오브젝트");
             Assert.That(state.Field.Take(gun, store, ItemCatalog.CannedFood.Id, 8), Is.EqualTo(8));     // 3.2kg
-            Assert.That(state.Field.Take(gun, store, ItemCatalog.BottledWater.Id, 8), Is.EqualTo(4));   // 11.2kg, 과적 한도 12kg
+            Assert.That(state.Field.Take(gun, store, ItemCatalog.BottledWater.Id, 8), Is.EqualTo(5));   // 생수 1.5kg × 5 → 10.7kg, 과적 한도 12kg
             Assert.That(gun.IsOverloaded, Is.True);
-            Assert.That(store.Contents.Count(ItemCatalog.BottledWater.Id), Is.EqualTo(4));
+            Assert.That(store.Contents.Count(ItemCatalog.BottledWater.Id), Is.EqualTo(3));
         }
 
         [Test]
@@ -75,8 +75,8 @@ namespace Catpo.Core.Tests
 
             var store = Spot("north_conv_a");
             Assert.That(store.IsEmpty, Is.False, "못 가져온 물자는 사라지지 않는다");
-            Assert.That(store.Contents.Count(ItemCatalog.CannedFood.Id), Is.EqualTo(5));
-            Assert.That(store.Contents.Count(ItemCatalog.BottledWater.Id), Is.EqualTo(6));
+            Assert.That(store.Contents.Count(ItemCatalog.CannedFood.Id), Is.EqualTo(6));
+            Assert.That(store.Contents.Count(ItemCatalog.BottledWater.Id), Is.EqualTo(5));
             Assert.That(store.Contents.Count(ItemCatalog.InstantNoodle.Id), Is.EqualTo(0));
         }
 

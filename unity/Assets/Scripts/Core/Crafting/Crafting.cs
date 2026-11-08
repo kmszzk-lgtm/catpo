@@ -202,6 +202,7 @@ namespace Catpo.Core
             StressRules.OnCraft(s, s.Definition.TasteFor(r.Kind));
 
             double hours = HomeActionHours(s, baseHours) / CraftSkillMultiplier(s, r);
+            StressRules.OnHomeActivity(s, hours);
             return new ActionResult(ActionFailure.None, hours, heat, savedInput: saved);
         }
     }

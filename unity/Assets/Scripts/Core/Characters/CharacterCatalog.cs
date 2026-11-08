@@ -64,9 +64,9 @@ namespace Catpo.Core
             "jipnyang", "집냥이", Gender.Female, "무직", "지하 1층",
             TraitCatalog.LifeSkill, TraitCatalog.HomeBody)
         {
+            // 집에서 하는 모든 활동으로 스트레스가 풀리므로 싫어하는 제작은 두지 않는다 [확정, 생활력]
             StartingSkills = new Dictionary<Skill, int> { { Skill.Crafting, 2 } },
             LikedCraft = CraftKind.Cooking,
-            DislikedCrafts = new[] { CraftKind.WeaponCare },
         };
 
         public static readonly CharacterDefinition Gunnyang = new CharacterDefinition(

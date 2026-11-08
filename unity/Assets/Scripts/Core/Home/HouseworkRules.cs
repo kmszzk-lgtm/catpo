@@ -40,7 +40,8 @@ namespace Catpo.Core
         }
 
         /// <summary>
-        /// 집 안 가구(침대, 매트리스, 테이블 등)를 분해해 나무 판과 나무 막대로 만든다 [확정].
+        /// 집 안 가구를 분해해 나무 판과 나무 막대로 만든다 [확정]. 테이블 1개 = 나무 막대 4 + 나무 판 1 [확정].
+        /// 튜토리얼 거점은 안 쓰는 가구를 시작 전에 다 분해해서 남은 가구가 없다 [확정]. 옮겨 간 새 거점에서 쓴다.
         /// 가구째로는 도르래로 올리고 내리기 힘들어서, 밖에서도 분해해서 가져온다 [확정].
         /// 집 안 가구가 바닥나면 밖에서도 가져와야 한다는 메시지를 띄운다 [확정].
         /// </summary>
@@ -110,7 +111,9 @@ namespace Catpo.Core
         {
             s.GainXp(skill, xp, atHome: true);
             StressRules.OnCraft(s, s.Definition.TasteFor(kind));
-            return new ActionResult(ActionFailure.None, CraftingRules.HomeActionHours(s, baseHours));
+            double hours = CraftingRules.HomeActionHours(s, baseHours);
+            StressRules.OnHomeActivity(s, hours);
+            return new ActionResult(ActionFailure.None, hours);
         }
     }
 }

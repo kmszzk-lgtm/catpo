@@ -78,31 +78,30 @@ namespace Catpo.Core.Tests
         [Test]
         public void 무게_한도를_넘게_들려면_과적해야_한다()
         {
-            for (int i = 0; i < 4; i++) Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id), Is.True);
+            for (int i = 0; i < 8; i++) Assert.That(gun.TryPickUp(ItemCatalog.BoiledWater.Id), Is.True);
             Assert.That(gun.Inventory.TotalWeightKg, Is.EqualTo(Balance.BaseCarryLimitKg).Within(1e-9));
-            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id), Is.False);
+            Assert.That(gun.TryPickUp(ItemCatalog.BoiledWater.Id), Is.False);
 
             // 사람은 과적해서 더 들 수 있다 (한도의 1.5배까지)
-            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.True);
-            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.True);
-            Assert.That(gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true), Is.False);
+            Assert.That(gun.TryPickUp(ItemCatalog.BoiledWater.Id, 4, allowOverload: true), Is.True);
+            Assert.That(gun.TryPickUp(ItemCatalog.BoiledWater.Id, allowOverload: true), Is.False);
             Assert.That(gun.IsOverloaded, Is.True);
         }
 
         [Test]
         public void 과적하면_느려지고_스태미나가_빨리_닳고_공격이_느려진다()
         {
-            for (int i = 0; i < 4; i++) gun.TryPickUp(ItemCatalog.BottledWater.Id); // 8kg, 한도
+            for (int i = 0; i < 8; i++) gun.TryPickUp(ItemCatalog.BoiledWater.Id); // 끓인 물 1kg × 8 = 8kg, 한도
             Assert.That(gun.OverloadRatio, Is.EqualTo(0));
             Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(1));
 
-            gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true); // 10kg, 과적 절반
+            gun.TryPickUp(ItemCatalog.BoiledWater.Id, 2, allowOverload: true); // 10kg, 과적 절반
             Assert.That(gun.OverloadRatio, Is.EqualTo(0.5).Within(1e-9));
             Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(0.8).Within(1e-9));
             Assert.That(gun.OverloadStaminaUseMultiplier, Is.EqualTo(1.3).Within(1e-9));
             Assert.That(gun.OverloadAttackSpeedMultiplier, Is.EqualTo(0.875).Within(1e-9));
 
-            gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true); // 12kg, 과적 한도
+            gun.TryPickUp(ItemCatalog.BoiledWater.Id, 2, allowOverload: true); // 12kg, 과적 한도
             Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(0.6).Within(1e-9));
             Assert.That(gun.OverloadStaminaUseMultiplier, Is.EqualTo(1.6).Within(1e-9));
             Assert.That(gun.OverloadAttackSpeedMultiplier, Is.EqualTo(0.75).Within(1e-9));

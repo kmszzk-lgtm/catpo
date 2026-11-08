@@ -31,12 +31,12 @@ namespace Catpo.Core.Tests
         public void 튜토리얼은_경비실_마스터_키로_10가구에서_모은_살림으로_시작한다()
         {
             Assert.That(StartingSupplies.Households, Is.EqualTo(10), "지하 3, 2층 3, 3층 3, 옥탑방 1");
-            Assert.That(StartingSupplies.HouseholdEquivalents, Is.EqualTo(8).Within(1e-9),
-                "버틴 사람은 4명이라 6가구는 손대지 않았고, 4가구는 절반쯤 남음");
 
-            Assert.That(Count(ItemCatalog.BottledWater), Is.EqualTo(6 * 8), "한 집 생수 6통");
-            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(5 * 8), "한 집 부탄가스 5개");
+            Assert.That(Count(ItemCatalog.BottledWater), Is.EqualTo(11), "건물 전체 합계 1.5L 11통");
+            Assert.That(ItemCatalog.BottledWater.WeightKg, Is.EqualTo(1.5));
+            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(5), "부탄가스를 쓰던 집은 하나뿐");
             Assert.That(Count(ItemCatalog.SoySauce), Is.EqualTo(10), "조미료는 거의 줄지 않아 집집마다 한 통");
+            Assert.That(Count(ItemCatalog.Tape), Is.GreaterThan(0), "몇몇 집에 강력접착테이프, 청색테이프");
             Assert.That(Count(ItemCatalog.VinylBag), Is.GreaterThan(0));
             Assert.That(state.Home.HasWorkingGasBurner, Is.True);
 
@@ -47,8 +47,20 @@ namespace Catpo.Core.Tests
                 if (item.Category == ItemCategory.Food) hungerRelief += item.HungerRelief * kv.Value;
             }
             double oneDay = Balance.HungerPerHour * 24;
-            Assert.That(hungerRelief / oneDay / 8, Is.InRange(28.0, 32.0), "보존식은 한 집에 1인 기준 30일치");
-            Assert.That(hungerRelief / oneDay / 4, Is.InRange(55.0, 65.0), "4명이 두 달쯤 먹을 양");
+            Assert.That(hungerRelief / oneDay, Is.InRange(28.0, 32.0), "건물을 다 뒤져서 보존식 1인 30일치");
+        }
+
+        [Test]
+        public void 집마다_있던_테이블은_다_분해해서_나무_막대와_나무_판으로_있다()
+        {
+            Assert.That(Balance.SticksPerFurniture, Is.EqualTo(4), "테이블 1개 = 나무 막대 4");
+            Assert.That(Balance.BoardsPerFurniture, Is.EqualTo(1), "테이블 1개 = 나무 판 1");
+            Assert.That(Count(ItemCatalog.WoodStick), Is.EqualTo(10 * 4));
+            Assert.That(Count(ItemCatalog.WoodBoard), Is.EqualTo(10 * 1));
+            Assert.That(state.Home.FurnitureLeft, Is.EqualTo(0), "안 쓰는 가구는 다 분해했다");
+            var more = HouseworkRules.BreakFurniture(state, jip);
+            Assert.That(more.Failure, Is.EqualTo(ActionFailure.NothingLeft));
+            Assert.That(more.NeedMaterialsFromOutside, Is.True);
         }
 
         [Test]
@@ -202,6 +214,10 @@ namespace Catpo.Core.Tests
         public void 모닥불은_종이_나무_막대_나무_판_순으로_태운다()
         {
             RemoveAll(ItemCatalog.Paper);
+            RemoveAll(ItemCatalog.WoodStick);
+            RemoveAll(ItemCatalog.WoodBoard);
+            state.Storage.Add(ItemCatalog.WoodStick.Id, 4);
+            state.Storage.Add(ItemCatalog.WoodBoard.Id, 2);
             state.Storage.Add(ItemCatalog.RainWater.Id, 12);
             for (int i = 0; i < 4; i++) CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.Campfire);
             Assert.That(Count(ItemCatalog.WoodStick), Is.EqualTo(0));
@@ -244,6 +260,7 @@ namespace Catpo.Core.Tests
         [Test]
         public void 가구를_분해해_나무_판과_막대로_현관을_보수한다()
         {
+            state.Home.FurnitureLeft = 1; // 튜토리얼 거점에는 남은 가구가 없다. 새 거점이라고 치기
             int boards = Count(ItemCatalog.WoodBoard), sticks = Count(ItemCatalog.WoodStick);
             Assert.That(HouseworkRules.BreakFurniture(state, jip).Success, Is.True);
             Assert.That(Count(ItemCatalog.WoodBoard), Is.EqualTo(boards + Balance.BoardsPerFurniture));
@@ -261,8 +278,9 @@ namespace Catpo.Core.Tests
         [Test]
         public void 집_안_가구가_바닥나면_밖에서_가져와야_한다()
         {
+            state.Home.FurnitureLeft = 3;
             ActionResult last = null;
-            for (int i = 0; i < Balance.HomeFurniturePieces; i++)
+            for (int i = 0; i < 3; i++)
             {
                 last = HouseworkRules.BreakFurniture(state, jip);
                 Assert.That(last.Success, Is.True);
@@ -285,9 +303,43 @@ namespace Catpo.Core.Tests
         [Test]
         public void 집냥이는_생활력_덕분에_집안일이_빠르다()
         {
-            double jipHours = HouseworkRules.BreakFurniture(state, jip).Hours;
-            double gunHours = HouseworkRules.BreakFurniture(state, gun).Hours;
+            state.Home.FrontDoor = 50;
+            double jipHours = HouseworkRules.RepairFrontDoor(state, jip, ItemCatalog.WoodBoard.Id).Hours;
+            double gunHours = HouseworkRules.RepairFrontDoor(state, gun, ItemCatalog.WoodBoard.Id).Hours;
             Assert.That(jipHours, Is.LessThan(gunHours));
+        }
+
+        // ── 집냥이의 생활력 ────────────────────────────────────────────
+
+        [Test]
+        public void 집냥이는_집에서_하는_모든_활동으로_스트레스가_풀린다()
+        {
+            jip.Stress = 50;
+            var door = HouseworkRules.RepairFrontDoor(state, jip, ItemCatalog.WoodStick.Id);
+            Assert.That(door.Success, Is.True);
+            Assert.That(jip.Stress, Is.EqualTo(50 - Balance.LifeSkillReliefPerHour * door.Hours).Within(1e-9),
+                "현관 보수는 좋아하는 제작이 아니어도 풀린다");
+
+            jip.Stress = 50;
+            state.Storage.Add(ItemCatalog.RainWater.Id, 2);
+            var cook = CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.Campfire);
+            Assert.That(jip.Stress, Is.EqualTo(50 - Balance.ReliefLikedCraft - Balance.LifeSkillReliefPerHour * cook.Hours).Within(1e-9),
+                "좋아하는 요리는 더 풀린다");
+        }
+
+        [Test]
+        public void 집냥이에게는_싫어하는_제작이_없다()
+        {
+            foreach (CraftKind kind in System.Enum.GetValues(typeof(CraftKind)))
+                Assert.That(CharacterCatalog.Jipnyang.TasteFor(kind), Is.Not.EqualTo(CraftTaste.Disliked));
+        }
+
+        [Test]
+        public void 다른_캐릭터는_좋아하지_않는_집안일로는_스트레스가_풀리지_않는다()
+        {
+            gil.Stress = 50;
+            Assert.That(HouseworkRules.RepairFrontDoor(state, gil, ItemCatalog.WoodStick.Id).Success, Is.True);
+            Assert.That(gil.Stress, Is.EqualTo(50));
         }
     }
 }
