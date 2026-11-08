@@ -33,7 +33,7 @@ catpo/
 │     ├─ Stress/StressRules.cs        스트레스 쌓임·풀림·단계
 │     ├─ Needs/NeedsRules.cs          배고픔·목마름, 먹고 마시기
 │     ├─ Crafting/Crafting.cs         제작법(정화제, 물 끓이기)과 제작 규칙
-│     ├─ Home/                        집 설비(불, 빗물받이, 현관, 집 정화)와 집안일·치료
+│     ├─ Home/                        집 설비(불, 빗물받이, 현관, 집 정화), 집안일·치료, 시작 살림(10가구)
 │     ├─ Field/FieldMap.cs            바깥 필드의 수색 대상과 고갈
 │     ├─ Items/Items.cs               아이템, 인벤토리, 무게
 │     └─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
@@ -52,7 +52,7 @@ dotnet test tests/Catpo.Core.Tests
 ```
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
-- 2026-11-08 기준 테스트 101개 통과
+- 2026-11-08 기준 테스트 108개 통과
 
 ## Unity에서 여는 방법 (기획자 PC)
 

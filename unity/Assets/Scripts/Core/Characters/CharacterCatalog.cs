@@ -91,8 +91,8 @@ namespace Catpo.Core
             "gilnyang", "길냥이", Gender.Female, "도둑", "옥탑방",
             TraitCatalog.SurvivalInstinct, TraitCatalog.Anxiety)
         {
+            // 길냥이는 집냥이가 아니다. 집 안에서 좋아하는 제작은 없다 [확정]
             StartingSkills = new Dictionary<Skill, int> { { Skill.Search, 3 }, { Skill.Stealth, 3 } },
-            LikedCraft = CraftKind.SmallTools,
             DislikedCrafts = new[] { CraftKind.BigBuild },
         };
 

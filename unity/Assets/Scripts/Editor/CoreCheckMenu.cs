@@ -41,6 +41,9 @@ namespace Catpo.EditorTools
 
                 Say($"의냥이가 군냥이 몸 정화: {Describe(HouseworkRules.PurifyBody(state, ui, gun))}");
                 Say($"의냥이 집 정화: {Describe(HouseworkRules.PurifyHouse(state, ui))}");
+                bool played = state.PlayHobby(new[] { jip, gil }, ItemCatalog.Hanafuda.Id, 1);
+                if (played) state.Advance(60);
+                Say($"집냥이와 길냥이 화투 1시간: {(played ? "스트레스 풀림" : "못 함")}");
                 Say($"모두 잠자기: {(state.SleepUntilMorning() ? "다음 날 아침" : "밖에 누가 있어서 못 잠")}");
                 LogState(state, "다음 날 아침");
 
@@ -70,7 +73,8 @@ namespace Catpo.EditorTools
             }
             sb.AppendLine($"  창고: 생수 {Count(state, ItemCatalog.BottledWater)}, 통조림 {Count(state, ItemCatalog.CannedFood)}, " +
                           $"라면 {Count(state, ItemCatalog.InstantNoodle)}, 정화제 {Count(state, ItemCatalog.Purifier)}, " +
-                          $"끓인 물 {Count(state, ItemCatalog.BoiledWater)}, 나무 판 {Count(state, ItemCatalog.WoodBoard)}");
+                          $"끓인 물 {Count(state, ItemCatalog.BoiledWater)}, 나무 판 {Count(state, ItemCatalog.WoodBoard)}, " +
+                          $"화투 {Count(state, ItemCatalog.Hanafuda)}, 트럼프 카드 {Count(state, ItemCatalog.PlayingCards)}");
             sb.AppendLine($"  현관 {state.Home.FrontDoor:0}, 빗물받이 {state.Home.RainCollectorCapacity}, " +
                           $"부탄가스 {Count(state, ItemCatalog.Butane)}통, 집 정화 {(state.Home.IsHouseProtected(state.Time.TotalMinutes) ? "유지 중" : "끊김")}");
             Debug.Log(sb.ToString());

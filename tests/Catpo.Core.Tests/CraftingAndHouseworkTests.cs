@@ -28,11 +28,15 @@ namespace Catpo.Core.Tests
         // ── 시작 살림 ──────────────────────────────────────────────────
 
         [Test]
-        public void 튜토리얼은_경비실_마스터_키로_모은_살림으로_시작한다()
+        public void 튜토리얼은_경비실_마스터_키로_10가구에서_모은_살림으로_시작한다()
         {
-            Assert.That(Count(ItemCatalog.BottledWater), Is.EqualTo(6));
-            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(5));
-            Assert.That(Count(ItemCatalog.SoySauce), Is.GreaterThan(0));
+            Assert.That(StartingSupplies.Households, Is.EqualTo(10), "지하 3, 2층 3, 3층 3, 옥탑방 1");
+            Assert.That(StartingSupplies.HouseholdEquivalents, Is.EqualTo(8).Within(1e-9),
+                "버틴 사람은 4명이라 6가구는 손대지 않았고, 4가구는 절반쯤 남음");
+
+            Assert.That(Count(ItemCatalog.BottledWater), Is.EqualTo(6 * 8), "한 집 생수 6통");
+            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(5 * 8), "한 집 부탄가스 5개");
+            Assert.That(Count(ItemCatalog.SoySauce), Is.EqualTo(10), "조미료는 거의 줄지 않아 집집마다 한 통");
             Assert.That(Count(ItemCatalog.VinylBag), Is.GreaterThan(0));
             Assert.That(state.Home.HasWorkingGasBurner, Is.True);
 
@@ -43,7 +47,17 @@ namespace Catpo.Core.Tests
                 if (item.Category == ItemCategory.Food) hungerRelief += item.HungerRelief * kv.Value;
             }
             double oneDay = Balance.HungerPerHour * 24;
-            Assert.That(hungerRelief / oneDay, Is.InRange(28.0, 32.0), "보존식은 1인 기준 30일치");
+            Assert.That(hungerRelief / oneDay / 8, Is.InRange(28.0, 32.0), "보존식은 한 집에 1인 기준 30일치");
+            Assert.That(hungerRelief / oneDay / 4, Is.InRange(55.0, 65.0), "4명이 두 달쯤 먹을 양");
+        }
+
+        [Test]
+        public void 프롤로그를_끝내면_함께_노는_취미_물건이_있다()
+        {
+            Assert.That(Count(ItemCatalog.Hanafuda), Is.EqualTo(1));
+            Assert.That(Count(ItemCatalog.PlayingCards), Is.EqualTo(1));
+            Assert.That(ItemCatalog.Hanafuda.Category, Is.EqualTo(ItemCategory.Hobby));
+            Assert.That(ItemCatalog.PlayingCards.Category, Is.EqualTo(ItemCategory.Hobby));
         }
 
         // ── 정화제 ─────────────────────────────────────────────────────
@@ -142,17 +156,18 @@ namespace Catpo.Core.Tests
         public void 불은_플레이어가_고른다()
         {
             state.Storage.Add(ItemCatalog.RainWater.Id, 4);
+            int paper = Count(ItemCatalog.Paper), butane = Count(ItemCatalog.Butane);
             Assert.That(CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater).Failure, Is.EqualTo(ActionFailure.HeatNotChosen));
             Assert.That(state.Home.AvailableHeat(state.Storage), Is.EquivalentTo(new[] { HeatSource.Campfire, HeatSource.GasBurner }));
 
             var campfire = CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.Campfire);
             Assert.That(campfire.Heat, Is.EqualTo(HeatSource.Campfire));
-            Assert.That(Count(ItemCatalog.Paper), Is.EqualTo(19));
-            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(5), "모닥불을 골랐으니 부탄가스는 그대로");
+            Assert.That(Count(ItemCatalog.Paper), Is.EqualTo(paper - 1));
+            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(butane), "모닥불을 골랐으니 부탄가스는 그대로");
 
             var burner = CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.GasBurner);
             Assert.That(burner.Heat, Is.EqualTo(HeatSource.GasBurner));
-            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(4));
+            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(butane - 1));
             Assert.That(state.Home.ButaneCharges, Is.EqualTo(Balance.ButaneChargesPerCan - 1));
             Assert.That(burner.Hours, Is.LessThan(campfire.Hours), "가스버너가 더 빠름");
             Assert.That(Count(ItemCatalog.BoiledWater), Is.EqualTo(4));
@@ -163,11 +178,12 @@ namespace Catpo.Core.Tests
         {
             Assert.That(state.Home.GasBurnerCansLeft, Is.EqualTo(100));
             state.Home.GasBurnerCansLeft = 1;
+            int butane = Count(ItemCatalog.Butane);
             for (int i = 0; i < Balance.ButaneChargesPerCan; i++)
                 Assert.That(state.Home.UseHeat(state.Storage, HeatSource.GasBurner), Is.True);
             Assert.That(state.Home.HasWorkingGasBurner, Is.False);
             Assert.That(state.Home.CanUse(state.Storage, HeatSource.GasBurner), Is.False);
-            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(4));
+            Assert.That(Count(ItemCatalog.Butane), Is.EqualTo(butane - 1));
         }
 
         [Test]
@@ -200,9 +216,10 @@ namespace Catpo.Core.Tests
         [Test]
         public void 빗물받이는_비닐봉투_나무_막대_용기로_만들고_냄비는_그냥_둬도_된다()
         {
+            int petBottles = Count(ItemCatalog.PetBottle);
             Assert.That(HouseworkRules.BuildRainCollector(state, gil, ItemCatalog.PetBottle.Id).Success, Is.True);
             Assert.That(state.Home.RainCollectorCapacity, Is.EqualTo(Balance.RainWaterPerFunnelCollector));
-            Assert.That(Count(ItemCatalog.PetBottle), Is.EqualTo(3));
+            Assert.That(Count(ItemCatalog.PetBottle), Is.EqualTo(petBottles - 1));
 
             RemoveAll(ItemCatalog.WoodStick);
             Assert.That(HouseworkRules.BuildRainCollector(state, gil, ItemCatalog.PetBottle.Id).Failure,

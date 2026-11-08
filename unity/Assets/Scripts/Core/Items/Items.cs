@@ -13,6 +13,8 @@ namespace Catpo.Core
         Medical,
         Tool,
         Seasoning,
+        /// <summary>둘 이상이 함께 노는 취미 물건 [확정].</summary>
+        Hobby,
     }
 
     public sealed class ItemDefinition
@@ -63,6 +65,10 @@ namespace Catpo.Core
         public static readonly ItemDefinition CookingOil = Add("cooking_oil", "식용유", ItemCategory.Seasoning, 0.9);
         public static readonly ItemDefinition CanolaOil = Add("canola_oil", "카놀라유", ItemCategory.Seasoning, 0.9);
 
+        // 취미 물건: 둘 이상이 함께해야 스트레스가 풀린다 [확정]. 프롤로그를 끝내면서 생긴다 [확정]
+        public static readonly ItemDefinition Hanafuda = Add("hanafuda", "화투", ItemCategory.Hobby, 0.1);
+        public static readonly ItemDefinition PlayingCards = Add("playing_cards", "트럼프 카드", ItemCategory.Hobby, 0.1);
+
         // 나무: 나무 막대와 나무 판 두 가지 [확정]. 가구를 분해해서 얻는다
         public static readonly ItemDefinition WoodStick = Add("wood_stick", "나무 막대", ItemCategory.Material, 0.5);
         public static readonly ItemDefinition WoodBoard = Add("wood_board", "나무 판", ItemCategory.Material, 1.5);
@@ -108,6 +114,8 @@ namespace Catpo.Core
             if (!items.TryGetValue(id, out var item)) throw new KeyNotFoundException($"알 수 없는 아이템: {id}");
             return item;
         }
+
+        public static bool TryGet(string id, out ItemDefinition item) => items.TryGetValue(id, out item);
 
         public static IEnumerable<ItemDefinition> All => items.Values;
     }

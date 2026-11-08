@@ -41,8 +41,9 @@ namespace Catpo.Core
         public const double OutsideStressMultiplier = 2;     // [확정] 집 밖은 두 배
         public const double StressPerInjurySeverity = 10;    // [제안]
         public const double StressOnCompanionDeath = 40;     // [제안] 아주 많이 [확정]
-        public const double HazingStress = 2;                // [제안] 태움 1회
-        public const double HazingIntervalHours = 3;         // [제안] 태움 주기
+        // 태움: 상시도, 매시간도 아니고, 집에 있는 무작위 1명에게 가끔 발동 [확정]. 확률과 양은 [제안]
+        public const double HazingStress = 6;                // [제안] 태움 1회. 가끔 한 명에게 몰리니 한 번은 아프게
+        public const double HazingChancePerHour = 0.15;      // [제안] 의냥이가 집에 깨어 있는 1시간마다 발동 확률
         public const double ReliefHighValueItem = 10;        // [제안]
         public const double ReliefScarceResource = 15;       // [제안]
         public const double ReliefHobbyPerHour = 8;          // [제안] 둘 이상 함께 [확정]
@@ -103,7 +104,9 @@ namespace Catpo.Core
         public const double DoorRepairPerStick = 5;          // [제안] 나무 막대
         public const double DoorRepairPerTape = 5;           // [제안]
         public const double DoorRepairHours = 1;             // [제안]
-        public const int HomeFurniturePieces = 24;           // [제안] 침대, 매트리스, 테이블 등은 집집마다 많음 [확정]
+        public const int BuildingHouseholds = 10;            // [확정] 지하 3, 2층 3, 3층 3, 옥탑방 1
+        public const int FurniturePerHousehold = 5;          // [제안] 침대, 매트리스, 테이블 등은 집집마다 많음 [확정]
+        public const int HomeFurniturePieces = BuildingHouseholds * FurniturePerHousehold;
         public const int BoardsPerFurniture = 1;             // [제안] 가구 1개를 분해하면 나무 판 1개
         public const int SticksPerFurniture = 2;             // [제안] 나무 막대 2개
         public const double BreakFurnitureHours = 1;         // [제안]

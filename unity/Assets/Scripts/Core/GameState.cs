@@ -27,6 +27,10 @@ namespace Catpo.Core
         private readonly HashSet<Survivor> deathsHandled = new HashSet<Survivor>();
         private readonly Random random;
         private double hazingHours;
+        private bool sleeping;
+
+        /// <summary>태움 판정에 쓰는 0 이상 1 미만의 난수. 테스트에서 바꿔 끼울 수 있다. 비 판정과는 따로 굴린다.</summary>
+        internal Func<double> HazingRoll { get; set; }
 
         public GameState(GameTime time, IEnumerable<Survivor> survivors, FieldMap field = null, int seed = 20261108)
         {
@@ -34,6 +38,8 @@ namespace Catpo.Core
             this.survivors = survivors.ToList();
             Field = field ?? new FieldMap();
             random = new Random(seed);
+            var hazingRandom = new Random(unchecked(seed * 31 + 7));
+            HazingRoll = hazingRandom.NextDouble;
         }
 
         /// <summary>튜토리얼 모드 새 월드: 1일째(봄) 아침, 기본 캐릭터 4명.</summary>
@@ -43,28 +49,8 @@ namespace Catpo.Core
                 FieldMap.CreateTutorial(), seed);
             var st = state.Storage;
 
-            // 1층 현관 앞 경비실의 도어락 마스터 키로 지하부터 옥상까지 다 열어서 모은 살림 [확정].
-            st.Add(ItemCatalog.BottledWater.Id, 6);      // 생수는 집에 많이 두지 않음 [확정]
-            st.Add(ItemCatalog.CannedFood.Id, 10);       // 보존식은 1인 기준 30일치 [확정] (개수 배분은 [제안])
-            st.Add(ItemCatalog.InstantNoodle.Id, 12);
-            st.Add(ItemCatalog.Chocolate.Id, 8);
-            foreach (var seasoning in new[] { ItemCatalog.Salt, ItemCatalog.SoySauce, ItemCatalog.SesameOil, ItemCatalog.CookingOil, ItemCatalog.CanolaOil })
-                st.Add(seasoning.Id, 4);                 // 조미료는 집집마다 한 통씩 [확정]
-            st.Add(ItemCatalog.Butane.Id, 5);            // [확정]
-            st.Add(ItemCatalog.VinylBag.Id, 20);         // 어지간한 집에 다 있음 [확정], 개수 [제안]
-            st.Add(ItemCatalog.PetBottle.Id, 4);         // [제안]
-            st.Add(ItemCatalog.Pot.Id, 3);               // [제안]
-            st.Add(ItemCatalog.Paper.Id, 20);            // [제안]
-            st.Add(ItemCatalog.WoodStick.Id, 4);         // [제안]
-            st.Add(ItemCatalog.WoodBoard.Id, 2);         // [제안]
-            st.Add(ItemCatalog.Tape.Id, 3);              // [제안]
-            st.Add(ItemCatalog.Bleach.Id, 4);            // [제안] 집집마다 락스
-            st.Add(ItemCatalog.LiquorBottle.Id, 3);      // [제안]
-            st.Add(ItemCatalog.Disinfectant.Id, 2);      // [제안]
-            // 의냥이 시작 아이템 [확정]: 응급처치 도구 여러 개, 상비약, 진통제. 개수는 [제안].
-            st.Add(ItemCatalog.FirstAidKit.Id, 3);
-            st.Add(ItemCatalog.HouseholdMedicine.Id, 5);
-            st.Add(ItemCatalog.Painkiller.Id, 5);
+            // 1층 경비실의 도어락 마스터 키로 10가구를 다 열어서 모은 살림 [확정]. 수치는 StartingSupplies 참고.
+            StartingSupplies.FillTutorial(st);
             // 가스버너는 집에 있다 [확정]
             st.Add(ItemCatalog.GasBurner.Id, 1);
             state.Home.InstallGasBurner(st);
@@ -132,6 +118,19 @@ namespace Catpo.Core
         {
             var source = s.Location == SurvivorLocation.Home ? Storage : s.Inventory;
             return NeedsRules.Consume(s, source, itemId);
+        }
+
+        /// <summary>
+        /// 집에서 취미 물건(화투, 트럼프 카드)으로 함께 논다 [확정]. 둘 이상이 집에 있어야 하고, 물건은 쓰지 않는다.
+        /// 시간이 흐르는 동안의 다른 변화(배고픔, 태움 등)는 부른 쪽에서 Advance로 처리한다.
+        /// </summary>
+        public bool PlayHobby(IReadOnlyCollection<Survivor> participants, string hobbyItemId, double hours)
+        {
+            if (!ItemCatalog.TryGet(hobbyItemId, out var item) || item.Category != ItemCategory.Hobby) return false;
+            if (Storage.Count(hobbyItemId) <= 0) return false;
+            if (participants.Distinct().Count() != participants.Count) return false;
+            if (participants.Any(p => p.IsDead || p.Location != SurvivorLocation.Home || p.IsDispatched)) return false;
+            return StressRules.PlayHobby(participants, hours);
         }
 
         // ── AI 파견 ────────────────────────────────────────────────────
@@ -307,7 +306,9 @@ namespace Catpo.Core
             int minutesToWake = (Balance.MinutesPerDay - Time.MinuteOfDay) + wakeHour * 60;
             if (minutesToWake >= Balance.MinutesPerDay) minutesToWake -= Balance.MinutesPerDay;
             if (minutesToWake == 0) minutesToWake = Balance.MinutesPerDay;
-            Advance(minutesToWake);
+            sleeping = true;
+            try { Advance(minutesToWake); }
+            finally { sleeping = false; }
             Wake();
             return true;
         }
@@ -338,23 +339,27 @@ namespace Catpo.Core
         }
 
         /// <summary>
-        /// 태움: 의냥이가 집에 있으면, 외출하지 않고 집에 있는 사람에게 주기적으로 스트레스 [확정].
-        /// 의냥이가 집 밖에 있으면 생기지 않는다.
+        /// 태움: 상시도, 매시간도 아니다. 의냥이가 집에 있으면 가끔, 집에 있는 사람 중 무작위 1명에게 발동한다 [확정].
+        /// 의냥이가 집 밖에 있거나 모두 자는 동안에는 생기지 않는다. 오늘 외출했다 돌아온 사람은 대상이 아니다 [확정, Q35].
+        /// 발동 확률(1시간마다 판정)과 양은 [제안].
         /// </summary>
         private void ApplyHazing(double hours)
         {
             var hazers = AtHome.Where(s => s.Effects.HazesStayHome).ToList();
-            if (hazers.Count == 0)
+            if (hazers.Count == 0 || sleeping)
             {
                 hazingHours = 0;
                 return;
             }
             hazingHours += hours;
-            while (hazingHours >= Balance.HazingIntervalHours)
+            while (hazingHours >= 1 - 1e-9)
             {
-                hazingHours -= Balance.HazingIntervalHours;
-                foreach (var target in AtHome.Where(s => !hazers.Contains(s) && !s.WentOutToday))
-                    StressRules.OnHazed(target);
+                hazingHours -= 1;
+                if (HazingRoll() >= Balance.HazingChancePerHour) continue;
+                var targets = AtHome.Where(s => !hazers.Contains(s) && !s.WentOutToday).ToList();
+                if (targets.Count == 0) continue;
+                int pick = Math.Min(targets.Count - 1, (int)(HazingRoll() * targets.Count));
+                StressRules.OnHazed(targets[pick]);
             }
         }
 

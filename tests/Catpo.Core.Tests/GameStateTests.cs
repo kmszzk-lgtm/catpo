@@ -161,19 +161,71 @@ namespace Catpo.Core.Tests
             Assert.That(jip.Stress, Is.GreaterThan(stressBefore));
         }
 
-        [Test]
-        public void 의냥이가_집에_있으면_외출하지_않은_사람에게_태움_스트레스가_쌓인다()
+        /// <summary>태움 판정 난수를 차례로 돌려준다. 다 쓰면 fallback을 계속 돌려준다.</summary>
+        private static System.Func<double> Rolls(double fallback, params double[] rolls)
         {
-            state.Advance(3 * 60); // 07:00 → 10:00, 모두 집
+            var queue = new System.Collections.Generic.Queue<double>(rolls);
+            return () => queue.Count > 0 ? queue.Dequeue() : fallback;
+        }
+
+        private const double Hit = 0.0;   // 태움 확률에 걸림 / 대상 목록의 첫 번째
+        private const double Miss = 0.99; // 태움 확률에 걸리지 않음
+
+        [Test]
+        public void 태움은_집에_있는_사람_중_무작위_한_명에게만_발동한다()
+        {
+            // 1시간째: 발동, 대상 목록 [집냥이, 군냥이, 길냥이] 중 첫 번째. 그 뒤로는 발동하지 않음.
+            state.HazingRoll = Rolls(Miss, Hit, 0.0);
+            state.Advance(3 * 60);
             double timeStress = Balance.StressPerHomeHour * 3;
             Assert.That(jip.Stress, Is.EqualTo(timeStress + Balance.HazingStress).Within(1e-9));
+            Assert.That(gil.Stress, Is.EqualTo(timeStress).Within(1e-9), "한 명에게만");
+            Assert.That(gun.Stress, Is.EqualTo(timeStress * 0.5).Within(1e-9), "한 명에게만");
             Assert.That(ui.Stress, Is.EqualTo(timeStress).Within(1e-9), "의냥이 자신은 태움을 받지 않는다");
-            Assert.That(gun.Stress, Is.EqualTo((timeStress + Balance.HazingStress) * 0.5).Within(1e-9), "군냥이는 생성량 -50%");
+        }
+
+        [Test]
+        public void 태움은_상시도_매시간도_아니다()
+        {
+            state.HazingRoll = Rolls(Miss);
+            state.Advance(6 * 60);
+            double timeStress = Balance.StressPerHomeHour * 6;
+            Assert.That(jip.Stress, Is.EqualTo(timeStress).Within(1e-9), "확률에 걸리지 않으면 아무 일도 없다");
+            Assert.That(Balance.HazingChancePerHour, Is.LessThan(0.5));
+        }
+
+        [Test]
+        public void 기본_난수로는_깨어_있는_동안_몇_번만_발동한다()
+        {
+            int hazed = 0;
+            for (int hour = 0; hour < 15; hour++) // 07:00 → 22:00, 모두 집에 있음
+            {
+                double jb = jip.Stress, gb = gil.Stress, nb = gun.Stress;
+                state.Advance(60);
+                int thisHour = 0;
+                if (jip.Stress - jb > Balance.StressPerHomeHour + 1e-9) thisHour++;
+                if (gil.Stress - gb > Balance.StressPerHomeHour + 1e-9) thisHour++;
+                if (gun.Stress - nb > Balance.StressPerHomeHour * 0.5 + 1e-9) thisHour++;
+                Assert.That(thisHour, Is.LessThanOrEqualTo(1), "한 번에 한 명만");
+                hazed += thisHour;
+            }
+            Assert.That(hazed, Is.InRange(1, 6), "깨어 있는 15시간 동안 몇 번뿐");
+        }
+
+        [Test]
+        public void 군냥이는_얼차려로_태움을_거의_받지_않는다()
+        {
+            // 대상 목록 [집냥이, 군냥이, 길냥이]에서 두 번째
+            state.HazingRoll = Rolls(Miss, Hit, 0.4);
+            state.Advance(60);
+            Assert.That(gun.Stress, Is.EqualTo((Balance.StressPerHomeHour + Balance.HazingStress) * 0.5).Within(1e-9));
+            Assert.That(jip.Stress, Is.EqualTo(Balance.StressPerHomeHour).Within(1e-9));
         }
 
         [Test]
         public void 의냥이가_밖에_있으면_태움이_없다()
         {
+            state.HazingRoll = Rolls(Hit);
             AdvanceTo(9);
             state.TryDepart(ui, Direction.South);
             double before = jip.Stress;
@@ -188,10 +240,61 @@ namespace Catpo.Core.Tests
             state.TryDepart(gil, Direction.East);
             state.Advance(60);
             state.Return(gil);
+            // 매시간 발동하고 대상 목록의 마지막 사람을 골라도 길냥이는 목록에 없다
+            state.HazingRoll = Rolls(Miss, Hit, 0.99, Hit, 0.99, Hit, 0.99);
             double before = gil.Stress;
             double multiplier = StressRules.GenerationMultiplier(gil); // 바깥 1시간 동안 오른 오염도만큼 스트레스가 더 쌓인다
             state.Advance(3 * 60);
             Assert.That(gil.Stress - before, Is.EqualTo(Balance.StressPerHomeHour * 3 * multiplier).Within(1e-9));
+            Assert.That(gun.Stress, Is.GreaterThanOrEqualTo(Balance.HazingStress * 3 * 0.5), "다른 사람이 대신 받는다");
+        }
+
+        [Test]
+        public void 자는_동안에는_태움이_없다()
+        {
+            var always = GameState.NewTutorial();
+            var never = GameState.NewTutorial();
+            foreach (var g in new[] { always, never })
+            {
+                g.HazingRoll = Rolls(Miss);
+                g.Advance(15 * 60); // 22:00까지
+            }
+            always.HazingRoll = Rolls(Hit);
+            double a0 = always.Get("jipnyang").Stress, n0 = never.Get("jipnyang").Stress;
+            Assert.That(a0, Is.EqualTo(n0).Within(1e-9));
+
+            Assert.That(always.SleepUntilMorning(), Is.True);
+            Assert.That(never.SleepUntilMorning(), Is.True);
+            Assert.That(always.Get("jipnyang").Stress - a0, Is.EqualTo(never.Get("jipnyang").Stress - n0).Within(1e-9));
+        }
+
+        [Test]
+        public void 취미_물건으로_둘_이상이_함께_놀면_스트레스가_풀린다()
+        {
+            jip.Stress = 50;
+            gil.Stress = 50;
+            Assert.That(state.PlayHobby(new[] { jip, gil }, ItemCatalog.Hanafuda.Id, 1), Is.True);
+            Assert.That(jip.Stress, Is.EqualTo(50 - Balance.ReliefHobbyPerHour).Within(1e-9));
+            Assert.That(gil.Stress, Is.EqualTo(50 - Balance.ReliefHobbyPerHour).Within(1e-9));
+            Assert.That(state.Storage.Count(ItemCatalog.Hanafuda.Id), Is.EqualTo(1), "화투는 닳지 않는다");
+        }
+
+        [Test]
+        public void 혼자거나_밖에_있거나_취미_물건이_없으면_놀_수_없다()
+        {
+            jip.Stress = 50;
+            Assert.That(state.PlayHobby(new[] { jip }, ItemCatalog.PlayingCards.Id, 1), Is.False, "혼자");
+            Assert.That(state.PlayHobby(new[] { jip, jip }, ItemCatalog.PlayingCards.Id, 1), Is.False, "같은 사람 두 번");
+            Assert.That(state.PlayHobby(new[] { jip, gil }, ItemCatalog.CannedFood.Id, 1), Is.False, "취미 물건이 아님");
+
+            AdvanceTo(9);
+            state.TryDepart(gil, Direction.East);
+            Assert.That(state.PlayHobby(new[] { jip, gil }, ItemCatalog.PlayingCards.Id, 1), Is.False, "길냥이는 밖에 있음");
+            state.Return(gil);
+
+            state.Storage.Remove(ItemCatalog.PlayingCards.Id, 1);
+            Assert.That(state.PlayHobby(new[] { jip, gil }, ItemCatalog.PlayingCards.Id, 1), Is.False, "트럼프 카드가 없음");
+            Assert.That(state.PlayHobby(new[] { jip, gil }, ItemCatalog.Hanafuda.Id, 1), Is.True, "화투는 있음");
         }
 
         [Test]
