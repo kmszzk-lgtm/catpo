@@ -92,6 +92,23 @@ namespace Catpo.Core
 
         public bool IsOverloaded => Inventory.TotalWeightKg > CarryLimitKg + 1e-9;
 
+        /// <summary>과적한 정도. 무게 한도면 0, 과적 한도면 1.</summary>
+        public double OverloadRatio
+        {
+            get
+            {
+                double over = Inventory.TotalWeightKg - CarryLimitKg;
+                if (over <= 0) return 0;
+                double range = OverloadLimitKg - CarryLimitKg;
+                return range <= 0 ? 1 : System.Math.Min(1, over / range);
+            }
+        }
+
+        // 과적하면 느려지고, 스태미나가 더 빨리 닳고, 공격 속도가 느려진다 [확정]. 과적한 만큼 비례 [제안].
+        public double OverloadMoveSpeedMultiplier => 1 - Balance.OverloadMaxMoveSlow * OverloadRatio;
+        public double OverloadStaminaUseMultiplier => 1 + Balance.OverloadMaxStaminaExtra * OverloadRatio;
+        public double OverloadAttackSpeedMultiplier => 1 - Balance.OverloadMaxAttackSlow * OverloadRatio;
+
         /// <summary>
         /// 무게 한도 안에서 줍는다. allowOverload면 과적 한도까지 줍는다 (사람이 직접 수색할 때).
         /// AI는 과적하지 않는다 [확정].

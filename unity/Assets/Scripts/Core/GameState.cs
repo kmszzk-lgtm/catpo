@@ -144,6 +144,8 @@ namespace Catpo.Core
         public DepartResult Dispatch(Survivor s, Direction direction)
         {
             if (s.ControlledByPlayer) return DepartResult.PlayerControlled;
+            if (CanDepart(s, direction) == DepartResult.Ok && ExposureBudgetMinutes(s) < Balance.MinDispatchExposureMinutes)
+                return DepartResult.TooContaminated;
             var result = TryDepart(s, direction);
             if (result != DepartResult.Ok) return result;
 
@@ -164,9 +166,13 @@ namespace Catpo.Core
             return deadline - Time.TotalMinutes;
         }
 
+        /// <summary>돌아왔을 때 오염도가 상한을 넘지 않도록 바깥에 있을 수 있는 시간 [확정: 50 이상이 되지 않게].</summary>
+        private static double ExposureBudgetMinutes(Survivor s) =>
+            (Balance.AiMaxContaminationOnReturn - s.Contamination) / Balance.ContaminationPerOutsideHour * 60;
+
         private List<DispatchPick> PlanDispatch(Survivor s, Direction d, out double returnAfterMinutes)
         {
-            double budget = Math.Max(Balance.MinDispatchHours * 60, DispatchBudgetMinutes());
+            double budget = Math.Min(Math.Max(Balance.MinDispatchHours * 60, DispatchBudgetMinutes()), ExposureBudgetMinutes(s));
             var e = s.Effects;
             double searchSpeed = e.ActionSpeed * (1 + (s.Skills.Level(Skill.Search) - 1) * Balance.CraftSpeedPerLevel)
                 * StressRules.ActionSpeedMultiplier(s.Stress);

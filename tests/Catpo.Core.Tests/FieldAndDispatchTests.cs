@@ -127,6 +127,28 @@ namespace Catpo.Core.Tests
             Assert.That(Spot("north_conv_a").Contents.Count(ItemCatalog.InstantNoodle.Id), Is.EqualTo(6));
         }
 
+        [Test]
+        public void AI는_돌아올_때_오염도가_50을_넘지_않게_일찍_돌아온다()
+        {
+            foreach (var spot in state.Field.All.Where(x => x.Direction == Direction.West)) spot.Contents.MoveAllTo(new Inventory());
+            InfectionRules.AddContamination(ui, 28); // 29
+            state.Dispatch(ui, Direction.West);       // 물자가 없어서 원래는 17:00까지 찾음
+            Assert.That(ui.DispatchReturnAtMinute - state.Time.TotalMinutes, Is.EqualTo(4 * 60), "(45 - 29) / 4 = 4시간");
+            state.Advance(8 * 60);
+            Assert.That(ui.Location, Is.EqualTo(SurvivorLocation.Home));
+            Assert.That(ui.Contamination, Is.LessThanOrEqualTo(Balance.AiMaxContaminationOnReturn + 1e-9));
+            Assert.That(ui.IsInfected, Is.False);
+        }
+
+        [Test]
+        public void 오염도가_너무_높으면_AI를_내보낼_수_없다()
+        {
+            InfectionRules.AddContamination(ui, 43); // 44 → 15분밖에 못 나감
+            Assert.That(state.Dispatch(ui, Direction.West), Is.EqualTo(DepartResult.TooContaminated));
+            Assert.That(state.Outings.IsOccupied(Direction.West), Is.False);
+            Assert.That(state.TryDepart(ui, Direction.West), Is.EqualTo(DepartResult.Ok), "사람이 직접 나가는 것은 막지 않음");
+        }
+
         // ── 자동 파견 ──────────────────────────────────────────────────
 
         [Test]

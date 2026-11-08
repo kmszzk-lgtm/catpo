@@ -60,6 +60,10 @@ namespace Catpo.Core
         // ── 소지품 (docs/10-controls-and-items.md) ─────────────────────
         public const double BaseCarryLimitKg = 8;            // [제안] 무게 한도는 높은 편이 아님 [확정]
         public const double OverloadFactor = 1.5;            // [제안] 사람은 과적해서 더 들 수 있음 [확정]. AI는 과적하지 않음 [확정]
+        // 과적하면 느려지고, 스태미나가 더 빨리 닳고, 공격 속도가 느려진다 [확정]. 과적 한도에 닿았을 때의 배율 [제안]
+        public const double OverloadMaxMoveSlow = 0.4;       // 이동 속도 ×0.6
+        public const double OverloadMaxStaminaExtra = 0.6;   // 스태미나 소모 ×1.6
+        public const double OverloadMaxAttackSlow = 0.25;    // 공격 속도 ×0.75
 
         // ── 배고픔·목마름 (0 = 괜찮음, 100 = 한계) ──────────────────────
         public const double NeedMax = 100;
@@ -116,6 +120,9 @@ namespace Catpo.Core
         public const double DispatchFullMarginKg = 0.3;      // [제안] 남은 여유가 이보다 적으면 가득 찬 것으로 봄
         public const int DispatchReturnHoursBeforeEnd = 1;   // [제안] 늦어도 해 지기 1시간 전에 돌아옴
         public const int MinDispatchHours = 1;
-        public const double AutoDispatchContaminationLimit = 30; // [제안] 자동 파견은 오염도가 이 이상이면 쉬게 함
+        public const double AutoDispatchContaminationLimit = 30; // [확정] 자동 파견은 오염도가 이 이상이면 쉬게 함
+        // AI가 나갔다 돌아왔을 때 오염도가 50 이상이 되지 않게 파견 시간을 줄인다 [확정]. 여유를 둔 상한 [제안]
+        public const double AiMaxContaminationOnReturn = 45;
+        public const int MinDispatchExposureMinutes = 30;     // [제안] 이보다 짧게밖에 못 나가면 파견하지 않음
     }
 }

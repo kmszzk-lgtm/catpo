@@ -90,6 +90,25 @@ namespace Catpo.Core.Tests
         }
 
         [Test]
+        public void 과적하면_느려지고_스태미나가_빨리_닳고_공격이_느려진다()
+        {
+            for (int i = 0; i < 4; i++) gun.TryPickUp(ItemCatalog.BottledWater.Id); // 8kg, 한도
+            Assert.That(gun.OverloadRatio, Is.EqualTo(0));
+            Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(1));
+
+            gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true); // 10kg, 과적 절반
+            Assert.That(gun.OverloadRatio, Is.EqualTo(0.5).Within(1e-9));
+            Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(0.8).Within(1e-9));
+            Assert.That(gun.OverloadStaminaUseMultiplier, Is.EqualTo(1.3).Within(1e-9));
+            Assert.That(gun.OverloadAttackSpeedMultiplier, Is.EqualTo(0.875).Within(1e-9));
+
+            gun.TryPickUp(ItemCatalog.BottledWater.Id, allowOverload: true); // 12kg, 과적 한도
+            Assert.That(gun.OverloadMoveSpeedMultiplier, Is.EqualTo(0.6).Within(1e-9));
+            Assert.That(gun.OverloadStaminaUseMultiplier, Is.EqualTo(1.6).Within(1e-9));
+            Assert.That(gun.OverloadAttackSpeedMultiplier, Is.EqualTo(0.75).Within(1e-9));
+        }
+
+        [Test]
         public void 나갈_때는_창고에서_무게_한도_안에서_꺼내_간다()
         {
             state.Storage.Add(ItemCatalog.Stone.Id, 30);
