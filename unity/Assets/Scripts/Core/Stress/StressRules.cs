@@ -26,7 +26,18 @@ namespace Catpo.Core
         public static void Add(Survivor s, double amount)
         {
             if (s.IsDead || amount <= 0) return;
-            s.Stress = Math.Min(Balance.StressMax, s.Stress + amount * s.Effects.StressGeneration);
+            s.Stress = Math.Min(Balance.StressMax, s.Stress + amount * GenerationMultiplier(s));
+        }
+
+        /// <summary>
+        /// 스트레스 생성 배율 = 특성 × 오염도 × 감염도.
+        /// 오염도의 영향은 스트레스뿐이고, 감염도가 높을수록 스트레스를 더 받는다 [확정]. 배율 수치는 [제안].
+        /// </summary>
+        public static double GenerationMultiplier(Survivor s)
+        {
+            double contamination = 1 + Math.Max(0, s.Contamination - Balance.ContaminationMin) * Balance.StressPerContaminationPoint;
+            double infection = 1 + s.Infection * Balance.StressPerInfectionPoint;
+            return s.Effects.StressGeneration * contamination * infection;
         }
 
         public static void Relieve(Survivor s, double amount)

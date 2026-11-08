@@ -67,11 +67,12 @@ namespace Catpo.Core.Tests
         public void 귀환하면_소지품이_공용_창고로_들어간다()
         {
             AdvanceTo(9);
+            int before = state.Storage.Count(ItemCatalog.CannedFood.Id);
             state.TryDepart(gun, Direction.North);
             Assert.That(gun.TryPickUp(ItemCatalog.CannedFood.Id, 2), Is.True);
             state.Return(gun);
             Assert.That(gun.Inventory.IsEmpty, Is.True);
-            Assert.That(state.Storage.Count(ItemCatalog.CannedFood.Id), Is.EqualTo(2));
+            Assert.That(state.Storage.Count(ItemCatalog.CannedFood.Id), Is.EqualTo(before + 2));
         }
 
         [Test]
@@ -163,8 +164,9 @@ namespace Catpo.Core.Tests
             state.Advance(60);
             state.Return(gil);
             double before = gil.Stress;
+            double multiplier = StressRules.GenerationMultiplier(gil); // 바깥 1시간 동안 오른 오염도만큼 스트레스가 더 쌓인다
             state.Advance(3 * 60);
-            Assert.That(gil.Stress - before, Is.EqualTo(Balance.StressPerHomeHour * 3).Within(1e-9));
+            Assert.That(gil.Stress - before, Is.EqualTo(Balance.StressPerHomeHour * 3 * multiplier).Within(1e-9));
         }
 
         [Test]

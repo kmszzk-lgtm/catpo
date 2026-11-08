@@ -22,14 +22,22 @@ namespace Catpo.Core
         public double WeightKg { get; }
         /// <summary>외출 전 유인이나 자동 귀환의 미끼로 던질 수 있는가 (docs/02-day-expedition.md).</summary>
         public bool IsLure { get; }
+        /// <summary>먹거나 마셨을 때 줄어드는 배고픔·목마름 [제안].</summary>
+        public double HungerRelief { get; }
+        public double ThirstRelief { get; }
 
-        public ItemDefinition(string id, string name, ItemCategory category, double weightKg, bool isLure = false)
+        public bool IsEdible => HungerRelief > 0 || ThirstRelief > 0;
+
+        public ItemDefinition(string id, string name, ItemCategory category, double weightKg, bool isLure = false,
+            double hungerRelief = 0, double thirstRelief = 0)
         {
             Id = id;
             Name = name;
             Category = category;
             WeightKg = weightKg;
             IsLure = isLure;
+            HungerRelief = hungerRelief;
+            ThirstRelief = thirstRelief;
         }
     }
 
@@ -38,11 +46,12 @@ namespace Catpo.Core
     {
         private static readonly Dictionary<string, ItemDefinition> items = new Dictionary<string, ItemDefinition>();
 
-        public static readonly ItemDefinition BottledWater = Add("bottled_water", "생수", ItemCategory.Water, 2.0);
+        public static readonly ItemDefinition BottledWater = Add("bottled_water", "생수", ItemCategory.Water, 2.0, thirstRelief: 50);
+        /// <summary>빗물은 끓여야 마실 수 있다 [제안].</summary>
         public static readonly ItemDefinition RainWater = Add("rain_water", "빗물", ItemCategory.Water, 1.0);
-        public static readonly ItemDefinition BoiledWater = Add("boiled_water", "끓인 물", ItemCategory.Water, 1.0);
-        public static readonly ItemDefinition CannedFood = Add("canned_food", "통조림", ItemCategory.Food, 0.4);
-        public static readonly ItemDefinition InstantNoodle = Add("instant_noodle", "라면", ItemCategory.Food, 0.12);
+        public static readonly ItemDefinition BoiledWater = Add("boiled_water", "끓인 물", ItemCategory.Water, 1.0, thirstRelief: 30);
+        public static readonly ItemDefinition CannedFood = Add("canned_food", "통조림", ItemCategory.Food, 0.4, hungerRelief: 35);
+        public static readonly ItemDefinition InstantNoodle = Add("instant_noodle", "라면", ItemCategory.Food, 0.12, hungerRelief: 30);
         public static readonly ItemDefinition Wood = Add("wood", "나무", ItemCategory.Fuel, 2.0);
         public static readonly ItemDefinition Paper = Add("paper", "종이", ItemCategory.Fuel, 0.3);
         public static readonly ItemDefinition Butane = Add("butane", "부탄가스", ItemCategory.Fuel, 0.3);
@@ -63,9 +72,10 @@ namespace Catpo.Core
         public static readonly ItemDefinition PlasticContainer = Add("plastic_container", "플라스틱 용기", ItemCategory.Material, 0.5);
         public static readonly ItemDefinition BuildingMaterial = Add("building_material", "자재", ItemCategory.Material, 3.0);
 
-        private static ItemDefinition Add(string id, string name, ItemCategory category, double weightKg, bool isLure = false)
+        private static ItemDefinition Add(string id, string name, ItemCategory category, double weightKg, bool isLure = false,
+            double hungerRelief = 0, double thirstRelief = 0)
         {
-            var item = new ItemDefinition(id, name, category, weightKg, isLure);
+            var item = new ItemDefinition(id, name, category, weightKg, isLure, hungerRelief, thirstRelief);
             items.Add(id, item);
             return item;
         }

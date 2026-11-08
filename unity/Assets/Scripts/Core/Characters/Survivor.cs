@@ -32,6 +32,15 @@ namespace Catpo.Core
         // 스트레스 (docs/08-stress.md)
         public double Stress { get; internal set; }
 
+        // 배고픔·목마름 (0 = 괜찮음, 100 = 한계)
+        public double Hunger { get; internal set; }
+        public double Thirst { get; internal set; }
+        /// <summary>충동적으로 더 먹는 양이 쌓인 값. 1이 넘으면 음식 1개를 더 먹는다.</summary>
+        internal double ExtraFoodDebt { get; set; }
+
+        // 숙련도
+        public SkillSet Skills { get; } = new SkillSet();
+
         public bool IsDead { get; private set; }
         public string DeathCause { get; private set; }
 
@@ -44,6 +53,11 @@ namespace Catpo.Core
         /// <summary>오늘은 집에서 쉬어야 함.</summary>
         public bool RestingToday { get; internal set; }
 
+        // AI 파견 중이면 정해진 시각에 저절로 돌아온다
+        public bool IsDispatched { get; internal set; }
+        internal long DispatchStartMinute { get; set; }
+        public long DispatchReturnAtMinute { get; internal set; }
+
         // 소지품
         public Inventory Inventory { get; } = new Inventory();
         public double CarryLimitKg { get; set; } = Balance.BaseCarryLimitKg;
@@ -53,6 +67,16 @@ namespace Catpo.Core
             Definition = definition;
             traits = definition.UniqueTraits.ToList();
             if (extraTraits != null) traits.AddRange(extraTraits);
+            foreach (var kv in definition.StartingSkills) Skills.SetLevel(kv.Key, kv.Value);
+        }
+
+        /// <summary>
+        /// 경험치를 얻는다. 집 안 행동과 외부 활동에 특성 배율이 따로 붙는다 [확정].
+        /// </summary>
+        public int GainXp(Skill skill, double amount, bool atHome)
+        {
+            double multiplier = atHome ? Effects.HomeXp : Effects.OutsideXp;
+            return Skills.AddXp(skill, amount * multiplier);
         }
 
         /// <summary>무게 한도 안에서만 줍는다. 성공하면 true.</summary>

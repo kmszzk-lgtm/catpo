@@ -24,11 +24,15 @@ catpo/
 ├─ unity/                             Unity 프로젝트 폴더 (지금은 Assets만 있음)
 │  └─ Assets/Scripts/Core/            규칙 코드. Catpo.Core.asmdef (엔진 참조 없음)
 │     ├─ Balance.cs                   밸런스 수치. [확정]/[제안] 표시
-│     ├─ GameState.cs                 월드 전체 상태: 시간, 캐릭터, 공용 창고, 외출, 잠자기, 태움
+│     ├─ GameState.cs                 월드 전체 상태: 시간, 캐릭터, 공용 창고, 외출, AI 파견, 잠자기, 하루 처리
 │     ├─ Time/GameTime.cs             날짜·시각, 계절, 외출 가능 시간, 시간대별 좀비 속도
-│     ├─ Characters/                  특성, 기본 캐릭터 4명, 캐릭터 상태(Survivor)
+│     ├─ Characters/                  특성, 기본 캐릭터 4명, 숙련도, 캐릭터 상태(Survivor)
 │     ├─ Health/InfectionRules.cs     오염도·감염도, 정화제·억제제·완치제
 │     ├─ Stress/StressRules.cs        스트레스 쌓임·풀림·단계
+│     ├─ Needs/NeedsRules.cs          배고픔·목마름, 먹고 마시기
+│     ├─ Crafting/Crafting.cs         제작법(정화제, 물 끓이기)과 제작 규칙
+│     ├─ Home/                        집 설비(불, 빗물받이, 현관, 집 정화)와 집안일·치료
+│     ├─ Field/FieldMap.cs            바깥 필드의 수색 대상과 고갈
 │     ├─ Items/Items.cs               아이템, 인벤토리, 무게
 │     └─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
 └─ tests/
@@ -46,7 +50,7 @@ dotnet test tests/Catpo.Core.Tests
 ```
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
-- 2026-11-08 기준 테스트 59개 통과
+- 2026-11-08 기준 테스트 93개 통과
 
 ## Unity에서 여는 방법 (기획자 PC)
 
