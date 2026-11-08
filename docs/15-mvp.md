@@ -51,7 +51,9 @@
 ## Unity 확인
 
 - Unity 상단 메뉴 **좀비냥 > 규칙 코드 확인**을 누르면, 튜토리얼 반나절을 돌려 보고 Console 창에 결과를 찍는다.
-- 클라우드에서는 Unity 대신 흉내 낸 코드로 컴파일과 실행만 확인했다. 실제 Unity에서는 기획자 PC에서 확인한다.
+- 클라우드에서는 Unity 대신 흉내 낸 코드로 컴파일과 실행만 확인한다 (`tests/UnityCompileCheck`).
+- **2026-11-08 기획자 PC의 Unity 6.6에서 확인 완료.** 컴파일되고 메뉴가 끝까지 돌았다. 처음에는 에디터 메뉴가 규칙 코드의 internal 멤버를 써서 Safe Mode 창이 떴고, 고친 뒤 통과했다.
+- 처음 열 때 Unity가 기본 패키지(Test Framework, Custom NUnit, Visual Studio Editor, JetBrains Rider Editor)를 만들었다. 화면용 Unity UI 패키지는 아직 없다.
 
 ## 아직 안 한 것
 
