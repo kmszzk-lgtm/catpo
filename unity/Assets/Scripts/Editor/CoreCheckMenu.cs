@@ -34,8 +34,6 @@ namespace Catpo.EditorTools
                 state.Storage.Add(ItemCatalog.RainWater.Id, 2); // 비 온 셈 치기
                 Say($"집냥이 물 끓이기 (모닥불): {Describe(CraftingRules.TryCraft(state, jip, RecipeCatalog.BoilWater, HeatSource.Campfire))}");
                 Say($"의냥이 정화제 만들기 (소독약): {Describe(CraftingRules.TryCraft(state, ui, RecipeCatalog.PurifierFromDisinfectant))}");
-                state.Home.FrontDoor -= 10; // 현관이 조금 상한 셈 치기
-                Say($"집냥이 현관 보수 (나무 판): {Describe(HouseworkRules.RepairFrontDoor(state, jip, ItemCatalog.WoodBoard.Id))}");
 
                 state.Advance(9 * 60); // 18:00
                 LogState(state, "저녁 6시");
@@ -47,6 +45,7 @@ namespace Catpo.EditorTools
                 Say($"집냥이와 길냥이 화투 1시간: {(played ? "스트레스 풀림" : "못 함")}");
                 Say($"모두 잠자기: {(state.SleepUntilMorning() ? "다음 날 아침" : "밖에 누가 있어서 못 잠")}");
                 LogState(state, "다음 날 아침");
+                Say($"집냥이 현관 보수 (나무 막대): {Describe(HouseworkRules.RepairFrontDoor(state, jip, ItemCatalog.WoodStick.Id))}, 현관 {state.Home.FrontDoor:0}");
 
                 Debug.Log("<b>[좀비냥] 규칙 코드 확인 끝.</b> 빨간 오류가 없으면 정상입니다.");
             }

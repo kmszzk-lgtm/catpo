@@ -38,7 +38,8 @@ catpo/
 │     ├─ Items/Items.cs               아이템, 인벤토리, 무게
 │     └─ Outing/OutingBoard.cs        사거리 4방향 외출 기록
 └─ tests/
-   └─ Catpo.Core.Tests/               .NET 테스트. Core 소스를 링크해서 컴파일
+   ├─ Catpo.Core.Tests/               .NET 테스트. Core 소스를 링크해서 컴파일
+   └─ UnityCompileCheck/              Unity와 같은 조건(.NET Standard 2.1, C# 9, 어셈블리 분리)으로 컴파일하고 에디터 메뉴를 실행
 ```
 
 - 규칙 코드 원본은 Unity 프로젝트 안에 한 벌만 둔다. 테스트 프로젝트는 그 파일을 링크해서 쓴다.
@@ -49,7 +50,10 @@ catpo/
 
 ```
 dotnet test tests/Catpo.Core.Tests
+dotnet run --project tests/UnityCompileCheck/Editor
 ```
+
+- 두 번째 명령은 Unity 에디터 메뉴를 Unity 없이 돌려 본다. 테스트는 규칙 코드를 테스트와 한 어셈블리로 묶어 컴파일해서 `internal` 멤버를 다른 어셈블리에서 쓰는 실수를 잡지 못한다. Unity에서는 규칙 코드(Catpo.Core)와 에디터 메뉴(Catpo.EditorTools)가 다른 어셈블리라 컴파일 오류가 된다. 2026-11-08에 이 실수로 Unity에서 Safe Mode 창이 떴다.
 
 - .NET SDK가 없으면 `apt-get install -y dotnet-sdk-8.0`
 - 2026-11-08 기준 테스트 112개 통과

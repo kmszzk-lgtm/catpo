@@ -1,0 +1,20 @@
+<!--
+  Unity 에디터 메뉴(좀비냥 > 규칙 코드 확인)를 Unity 없이 컴파일하고 실행해 본다.
+  Unity처럼 규칙 코드와 다른 어셈블리로 만들어서, internal 멤버를 잘못 쓰면 여기서도 오류가 난다.
+  실행 방법은 docs/06-tech.md 참고 (dotnet run, 프로젝트는 tests/UnityCompileCheck/Editor)
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="UnityStubs.cs" />
+    <Compile Include="../../../unity/Assets/Scripts/Editor/**/*.cs" Link="Editor/%(RecursiveDir)%(Filename)%(Extension)" />
+    <ProjectReference Include="../Core/Catpo.Core.Unity.csproj" />
+  </ItemGroup>
+</Project>
