@@ -15,3 +15,18 @@ unity/*.csproj
 unity/*.sln
 unity/.vs/
 unity/.vscode/
+unity/.idea/
+unity/.utmp/
+unity/[Mm]emoryCaptures/
+unity/[Rr]ecordings/
+unity/*.pidb
+unity/*.pdb
+unity/*.mdb
+unity/*.opendb
+unity/*.VC.db
+unity/*.apk
+unity/*.aab
+
+# 운영체제가 만드는 파일
+Thumbs.db
+.DS_Store
